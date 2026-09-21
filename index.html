@@ -234,9 +234,9 @@
         dibaca apa adanya beserta zona waktunya (jam tidak diubah; YouTube tetap menerima waktu yang tepat); kolom lain jadi deskripsi; kolom berawalan <code class="inline">#</code> jadi hashtag dan tags.<br>
         <label style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">Privacy untuk format ini:
           <select id="newFormatPrivacy" style="width:auto;padding:8px;">
-            <option value="private" selected>private</option>
+            <option value="private">private</option>
             <option value="unlisted">unlisted</option>
-            <option value="public">public</option>
+            <option value="public" selected>public</option>
           </select>
         </label>
       </div>
@@ -982,7 +982,7 @@
   // arrays = array of array (sel per baris). Hasil: { rows:[...objek standar...], problems:[...] }
   function parseHeaderlessRows(arrays){
     var rows = [], problems = [];
-    var privacy = (el.newFormatPrivacy && el.newFormatPrivacy.value) || "private";
+    var privacy = (el.newFormatPrivacy && el.newFormatPrivacy.value) || "public";
     arrays.forEach(function(cells, idx){
       if (isBlankRow(cells)) return;
       var n = idx + 1;
