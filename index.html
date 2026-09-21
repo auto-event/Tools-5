@@ -372,6 +372,10 @@
   // localStorage dibagi per ORIGIN, bukan per path. Semua repo di username.github.io satu origin,
   // jadi tanpa ini semua clone membaca/menimpa kunci yang sama. Di sini semua kunci "yt_csv_*" diberi
   // awalan nama folder/repo (mis. "repo-a::yt_csv_v4_state"). Di root domain (path "/") kunci tidak berubah.
+  var STORAGE_PREFIX = (function(){
+    var ns = location.pathname.replace(/[^\/]*$/, "").replace(/^\/+|\/+$/g, "");
+    return ns ? ns + "::" : "";
+  })();
   var localStorage = (function(){
     var real = window.localStorage;
     var ns = location.pathname.replace(/[^\/]*$/, "").replace(/^\/+|\/+$/g, "");
@@ -1372,14 +1376,36 @@
     updateGeneralUi();
   }
 
+  // Token akses disimpan di sessionStorage: per tab, hilang saat tab ditutup, dan hanya selama token masih berlaku (maks ~60 menit).
+  // Tujuannya supaya refresh / tab yang dibuang Android saat pindah aplikasi tidak memaksa login ulang di jam yang sama.
+  // Token TIDAK pernah masuk localStorage (yang bertahan permanen).
+  var SS_TOKENS = STORAGE_PREFIX + "yt_csv_tok";
+  function persistSessionTokens(){
+    try {
+      var list = [];
+      accounts.forEach(function(a){
+        if (a.token && !a.expired && tokenRemainingMs(a) > 0){
+          list.push({ clientId: a.clientId, email: a.email || "", token: a.token, loginAt: a.loginAt, tokenLifeMs: a.tokenLifeMs || TOKEN_LIFE_MS });
+        }
+      });
+      if (list.length) window.sessionStorage.setItem(SS_TOKENS, JSON.stringify(list));
+      else window.sessionStorage.removeItem(SS_TOKENS);
+    } catch (e){}
+  }
+  function loadSessionTokens(){
+    try { var raw = window.sessionStorage.getItem(SS_TOKENS); var a = raw ? JSON.parse(raw) : []; return Array.isArray(a) ? a : []; }
+    catch (e){ return []; }
+  }
+
   function persistAccounts(){
-    // Cuma simpan info ringan (bukan token, karena token access sengaja tidak disimpan permanen demi keamanan sesi).
+    // Info ringan (tanpa token) disimpan di localStorage; token sesi disimpan terpisah di sessionStorage (lihat di atas).
     // Dipakai buat memulihkan DAFTAR akun (email/channel) setelah refresh, supaya user tinggal "Login ulang"
     // per akun (lewat login_hint) alih-alih "Tambah Akun" dari nol dan harus ingat2 100 email satu-satu.
     try {
       var lite = accounts.map(function(a){ return { email: a.email, name: a.name, channelTitle: a.channelTitle, clientId: a.clientId, usedCount: a.usedCount || 0, usedDay: a.usedDay || pacificDateKey() }; });
       localStorage.setItem("yt_csv_accounts_meta", JSON.stringify(lite));
     } catch (e){}
+    persistSessionTokens();
   }
 
   function initGsi(){
@@ -2550,17 +2576,26 @@
     if (!raw) return;
     var lite; try { lite = JSON.parse(raw); } catch (e){ return; }
     if (!Array.isArray(lite) || !lite.length) return;
-    var restored = 0, skippedNoClient = 0, resetStale = 0;
+    var restored = 0, skippedNoClient = 0, resetStale = 0, withToken = 0;
     var todayKey = pacificDateKey();
+    var sess = loadSessionTokens();
     lite.forEach(function(a){
       if (!a || !a.clientId) return;
       if (clientIds.indexOf(a.clientId) === -1){ skippedNoClient++; return; }   // Client ID-nya sendiri sudah dihapus, tidak bisa login ulang ke situ
+      // Token dari sesi tab yang sama (sessionStorage) dipakai lagi kalau masih berlaku >1 menit.
+      var st = null;
+      for (var si = 0; si < sess.length; si++){
+        if (sess[si] && sess[si].clientId === a.clientId && (sess[si].email || "") === (a.email || "")){ st = sess[si]; break; }
+      }
+      var live = !!(st && st.token && st.loginAt && (st.loginAt + (st.tokenLifeMs || TOKEN_LIFE_MS) - Date.now()) > 60 * 1000);
+      if (live) withToken++;
       accounts.push({
         id: genId(),
         clientId: a.clientId,
-        token: null,
-        loginAt: null,
-        expired: true,             // belum ada token -> tampil "Token habis, klik Login ulang"
+        token: live ? st.token : null,
+        loginAt: live ? st.loginAt : null,
+        tokenLifeMs: live ? (st.tokenLifeMs || TOKEN_LIFE_MS) : undefined,
+        expired: !live,            // tanpa token yang masih berlaku -> tampil "Token habis, klik Login ulang"
         email: a.email || null,
         name: a.name || null,
         picture: null,
@@ -2573,7 +2608,7 @@
       restored++;
     });
     if (restored){
-      log(restored + " akun dipulihkan dari sesi sebelumnya (tanpa token, demi keamanan). Klik 'Login ulang' per akun atau tombol 'Login ulang yang habis' di bawah untuk lanjut tanpa perlu Tambah Akun dari nol.", "info");
+      log(restored + " akun dipulihkan dari sesi sebelumnya" + (withToken ? " (" + withToken + " di antaranya token masih aktif, tidak perlu login ulang)" : " (token sudah habis atau tab baru dibuka)") + ". Akun yang tokennya habis: klik 'Login ulang' per akun atau tombol 'Login ulang yang habis' di bawah, tanpa perlu Tambah Akun dari nol.", "info");
       if (skippedNoClient) log(skippedNoClient + " akun sesi sebelumnya dilewati karena Client ID-nya sudah dihapus.", "info");
       if (resetStale) log(resetStale + " akun punya hitungan pemakaian dari hari lain: direset ke 0 (kuota Google sudah reset, hari dihitung waktu Pasifik).", "info");
     }
@@ -2608,12 +2643,12 @@
       log(msg, "info");
       if (interrupted > 0) log("PERINGATAN: " + interrupted + " event terputus di tengah upload. Cek YouTube Studio dulu supaya tidak terupload ganda.", "error");
       if (st.lastRun && !st.lastRun.finished){
-        log("Bulk upload sebelumnya TIDAK selesai (sampai " + st.lastRun.done + "/" + st.lastRun.total + "). Kemungkinan halaman ter-refresh/ditutup. Daftar akun sudah dipulihkan (tanpa token) di bawah, klik 'Login ulang' per akun lalu upload sisanya.", "error");
+        log("Bulk upload sebelumnya TIDAK selesai (sampai " + st.lastRun.done + "/" + st.lastRun.total + "). Kemungkinan halaman ter-refresh/ditutup. Daftar akun sudah dipulihkan di bawah; akun yang tokennya sudah habis perlu 'Login ulang', lalu upload sisanya.", "error");
       }
 
       var html = '<div class="warn-box" style="margin-bottom:14px;">' +
         '<div class="warn-line"><span>&#128190;</span><span>Data sesi sebelumnya dipulihkan: ' + escapeHtml(String(events.length)) + ' event (' +
-        counts.sukses + ' sukses, ' + counts.gagal + ' gagal, ' + counts.ready + ' belum diupload). Daftar akun sudah dipulihkan (tanpa token, demi keamanan) &mdash; klik <b>Login ulang</b> per akun atau tombol <b>Login ulang yang habis</b> sebelum upload. Baris yang sudah <b>Sukses</b> tidak akan diupload ulang kalau kamu hanya memilih baris yang belum selesai.</span></div>' +
+        counts.sukses + ' sukses, ' + counts.gagal + ' gagal, ' + counts.ready + ' belum diupload). Daftar akun sudah dipulihkan &mdash; untuk akun yang tokennya sudah habis, klik <b>Login ulang</b> per akun atau tombol <b>Login ulang yang habis</b> sebelum upload. Baris yang sudah <b>Sukses</b> tidak akan diupload ulang kalau kamu hanya memilih baris yang belum selesai.</span></div>' +
         '<div style="margin-top:8px;"><button class="btn-ghost" id="resetSessionBtn" style="padding:7px 12px;font-size:11px;">Hapus data tersimpan</button></div></div>';
       el.restoreBanner.innerHTML = html;
       el.restoreBanner.style.display = "block";
