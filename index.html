@@ -248,6 +248,7 @@
           <thead><tr><th>Title</th><th>Date</th><th>Time</th><th>Privacy</th><th>Tags</th></tr></thead>
           <tbody id="previewTableBody"></tbody>
         </table>
+        <div id="previewMore" class="small" style="padding:10px 12px;color:var(--muted);display:none;"></div>
       </div>
 
       <div class="note-box" style="margin-top:14px;">
@@ -1212,6 +1213,13 @@
         '</tr>';
     });
     el.previewTableBody.innerHTML = rowsHtml;
+    var more = document.getElementById("previewMore");
+    if (more){
+      if (events.length > 20){
+        more.style.display = "block";
+        more.textContent = "Preview hanya menampilkan 20 dari " + events.length + " event. Semua " + events.length + " event tetap terbaca dan tampil lengkap di daftar event (bagian 4).";
+      } else { more.style.display = "none"; more.textContent = ""; }
+    }
   }
 
   // ================= RENDER TABEL EVENT (SECTION 4) =================
@@ -1290,7 +1298,43 @@
     updateUploadBtnState();
   }
 
+  // ---- Jaga layar tetap menyala + timer yang tidak ikut dilambatkan browser saat tab di latar belakang ----
+  // Browser HP menahan/menghentikan tab yang tidak terlihat. Wake Lock menjaga layar tetap nyala selama proses jalan
+  // (dilepas otomatis saat selesai); timer via Web Worker menghindari perlambatan timer tab latar belakang di desktop.
+  var wakeLockSentinel = null;
+  function syncWakeLock(){
+    try {
+      if (!navigator.wakeLock) return;
+      if (running && !wakeLockSentinel && document.visibilityState === "visible"){
+        navigator.wakeLock.request("screen").then(function(s){
+          wakeLockSentinel = s;
+          s.addEventListener("release", function(){ wakeLockSentinel = null; });
+        }).catch(function(){});
+      } else if (!running && wakeLockSentinel){
+        wakeLockSentinel.release().catch(function(){}); wakeLockSentinel = null;
+      }
+    } catch (e){}
+  }
+  document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "visible") syncWakeLock(); });
+
+  var bgTimerWorker = null, bgTimerSeq = 0, bgTimerCbs = {};
+  function bgTimeout(fn, ms){
+    var id = ++bgTimerSeq;
+    bgTimerCbs[id] = fn;
+    try {
+      if (!bgTimerWorker){
+        var blob = new Blob(["self.onmessage=function(e){var d=e.data;setTimeout(function(){self.postMessage(d.id)},d.ms)}"], { type: "application/javascript" });
+        bgTimerWorker = new Worker(URL.createObjectURL(blob));
+        bgTimerWorker.onmessage = function(e){ var cb = bgTimerCbs[e.data]; if (cb){ delete bgTimerCbs[e.data]; cb(); } };
+      }
+      bgTimerWorker.postMessage({ id: id, ms: ms });
+    } catch (e){ /* worker tidak tersedia: jatuh ke timer biasa di bawah */ }
+    // Cadangan: kalau worker tidak menjawab, timer biasa yang menjalankan (dedup lewat bgTimerCbs).
+    setTimeout(function(){ var cb = bgTimerCbs[id]; if (cb){ delete bgTimerCbs[id]; cb(); } }, ms + 3000);
+  }
+
   function updateUploadBtnState(){
+    syncWakeLock();
     var selCount = Object.keys(selectedIds).filter(function(id){ return selectedIds[id]; }).length;
     el.uploadAllBtn.disabled = running || selCount === 0 || accounts.length === 0;
     el.uploadAllBtn.textContent = running
@@ -1329,7 +1373,7 @@
       var remMs = tokenRemainingMs(acc);
       var tokenDead = acc.expired || remMs <= 0;
       var tokenWarn = !tokenDead && remMs <= TOKEN_WARN_MS;
-      var isExhausted = acc.usedCount >= limitPerAccount || !!acc.clientQuotaFull;
+      var isExhausted = acc.usedCount >= limitPerAccount || !!acc.clientQuotaFull || !!acc.uploadLimitBlocked;
       var cls = "acc-card" + (isActive ? " active" : "") + (isExhausted ? " exhausted" : "");
       var avatarHtml = acc.picture
         ? '<img src="' + escapeHtml(acc.picture) + '" alt="">'
@@ -1341,7 +1385,7 @@
           '<div class="acc-sub">' + escapeHtml(acc.email || "") + ' &bull; Client ' + escapeHtml(shortClientId(acc.clientId)) + '</div>' +
         '</div>' +
         (isActive ? '<span class="acc-badge-active">AKTIF</span>' : '') +
-        '<div class="acc-quota">' + acc.usedCount + '/' + limitPerAccount + '<br><b>' + (tokenDead ? "Token habis" : (appMode === "live" && acc.liveBlocked ? "Live belum aktif" : acc.clientQuotaFull ? "Kuota Client habis" : (isExhausted ? "Habis" : "Sisa " + (limitPerAccount - acc.usedCount)))) + (tokenWarn ? '<br><span style="color:#fbbf24;">token ' + fmtRemaining(remMs) + '</span>' : (!tokenDead && acc.loginAt ? '<br><span style="opacity:.7;">token ' + fmtRemaining(remMs) + '</span>' : '')) + '</b></div>' +
+        '<div class="acc-quota">' + acc.usedCount + '/' + limitPerAccount + '<br><b>' + (tokenDead ? "Token habis" : (appMode === "live" && acc.liveBlocked ? "Live belum aktif" : acc.uploadLimitBlocked ? "Batas upload channel" : acc.clientQuotaFull ? "Kuota Client habis" : (isExhausted ? "Habis" : "Sisa " + (limitPerAccount - acc.usedCount)))) + (tokenWarn ? '<br><span style="color:#fbbf24;">token ' + fmtRemaining(remMs) + '</span>' : (!tokenDead && acc.loginAt ? '<br><span style="opacity:.7;">token ' + fmtRemaining(remMs) + '</span>' : '')) + '</b></div>' +
         ((tokenDead || tokenWarn) && !running ? '<button class="acc-relogin' + (tokenDead ? ' urgent' : '') + '" data-relogin="' + idx + '" title="Login ulang akun ini">Login ulang</button>' : '') +
         '<button class="acc-remove" data-idx="' + idx + '" title="Hapus akun ini">&times;</button>' +
         '</div>';
@@ -2248,7 +2292,7 @@
       if (!initRes.ok){
         return initRes.text().then(function(errText){
           var cls = classifyApiError(initRes.status, errText);
-          cb({ ok: false, quotaExceeded: cls.quota, authExpired: cls.auth, error: "Gagal inisiasi upload (" + initRes.status + "): " + errText.slice(0, 200) });
+          cb({ ok: false, quotaExceeded: cls.quota, authExpired: cls.auth, uploadLimit: cls.uploadLimit, error: "Gagal inisiasi upload (" + initRes.status + "): " + errText.slice(0, 200) });
         });
       }
       var uploadUrl = initRes.headers.get("Location");
@@ -2265,7 +2309,7 @@
           cb({ ok: true, videoId: videoJson.id, error: null });
         } else {
           var cls2 = classifyApiError(xhr.status, xhr.responseText);
-          cb({ ok: false, quotaExceeded: cls2.quota, authExpired: cls2.auth, error: "Upload gagal (" + xhr.status + "): " + String(xhr.responseText).slice(0, 200) });
+          cb({ ok: false, quotaExceeded: cls2.quota, authExpired: cls2.auth, uploadLimit: cls2.uploadLimit, error: "Upload gagal (" + xhr.status + "): " + String(xhr.responseText).slice(0, 200) });
         }
       };
       xhr.onerror = function(){ cb({ ok: false, error: "Network error saat upload video (koneksi putus atau diblokir)." }); };
@@ -2284,20 +2328,24 @@
       var errs = (j && j.error && j.error.errors) || [];
       errs.forEach(function(e){ if (e && e.reason) reasons.push(e.reason); });
     } catch (e){}
+    // uploadLimitExceeded = batas upload per CHANNEL (bukan kuota project) & bisa datang dengan status 400, jadi dipisah dari quota.
+    var uploadLimit = reasons.indexOf("uploadLimitExceeded") !== -1 || /exceeded the number of videos/i.test(bodyText);
     var quota = status === 403 && reasons.some(function(r){
-      return r === "quotaExceeded" || r === "dailyLimitExceeded" || r === "rateLimitExceeded" || r === "uploadLimitExceeded";
+      return r === "quotaExceeded" || r === "dailyLimitExceeded" || r === "rateLimitExceeded";
     });
     // fallback: kalau body bukan JSON tapi jelas menyebut quota
     if (!quota && status === 403 && reasons.length === 0 && /quota/i.test(bodyText)) quota = true;
     var auth = status === 401;
-    return { quota: quota, auth: auth };
+    return { quota: quota, auth: auth, uploadLimit: uploadLimit };
   }
+
+  var UPLOAD_LIMIT_HINT = "Channel ini kena BATAS UPLOAD harian dari YouTube (uploadLimitExceeded). Ini batas per channel, bukan kuota API, jadi menambah Client ID tidak membantu. Biasanya reset sekitar 24 jam; verifikasi channel lewat youtube.com/verify (telepon) umumnya menaikkan batasnya. Alternatif: pakai mode Jadwal Live.";
 
   // Cari akun berikutnya (mulai dari activeAccountIndex) yang kuotanya belum habis.
   // Return null kalau semua akun sudah habis kuotanya.
   function getNextAvailableAccount(){
     for (var i = activeAccountIndex; i < accounts.length; i++){
-      if (accounts[i].usedCount < limitPerAccount && !isTokenExpired(accounts[i]) && !accounts[i].clientQuotaFull && !(appMode === "live" && accounts[i].liveBlocked)){
+      if (accounts[i].usedCount < limitPerAccount && !isTokenExpired(accounts[i]) && !accounts[i].clientQuotaFull && !accounts[i].uploadLimitBlocked && !(appMode === "live" && accounts[i].liveBlocked)){
         activeAccountIndex = i;
         return accounts[i];
       }
@@ -2315,7 +2363,7 @@
     // Halaman bisa dibiarkan terbuka lintas hari: buang hitungan pemakaian & tanda 'kuota habis' dari hari sebelumnya.
     var todayKey2 = pacificDateKey(), rolled = 0;
     accounts.forEach(function(a){
-      if (a.usedDay && a.usedDay !== todayKey2){ a.usedCount = 0; a.clientQuotaFull = false; a.usedDay = todayKey2; rolled++; }
+      if (a.usedDay && a.usedDay !== todayKey2){ a.usedCount = 0; a.clientQuotaFull = false; a.uploadLimitBlocked = false; a.usedDay = todayKey2; rolled++; }
     });
     if (rolled) log(rolled + " akun direset ke 0 pemakaian karena sudah ganti hari (waktu Pasifik, sama dengan reset kuota Google).", "info");
     activeAccountIndex = 0;
@@ -2375,19 +2423,23 @@
         updateUploadBtnState();
         renderAccountsList();
         // Hitung PENYEBAB tiap akun tidak bisa dipakai, supaya pesannya tidak menyesatkan (token habis != kuota habis).
-        var nTok = 0, nLimit = 0, nQuota = 0, nLive = 0;
+        var nTok = 0, nLimit = 0, nQuota = 0, nLive = 0, nUp = 0;
         accounts.forEach(function(a){
           if (isTokenExpired(a)) nTok++;
+          else if (a.uploadLimitBlocked) nUp++;
           else if (a.clientQuotaFull) nQuota++;
           else if (appMode === "live" && a.liveBlocked) nLive++;
           else if (a.usedCount >= limitPerAccount) nLimit++;
         });
-        if (nTok > 0 && nTok >= nLimit + nQuota + nLive){
+        if (nUp > 0 && nUp >= nTok + nLimit + nQuota + nLive){
+          showToast("Berhenti: channel kena batas upload harian YouTube");
+          log("BERHENTI karena BATAS UPLOAD channel (" + nUp + " akun). " + UPLOAD_LIMIT_HINT + " Sisa " + (targets.length - idx) + " event tetap 'Ready'.", "error");
+        } else if (nTok > 0 && nTok >= nLimit + nQuota + nLive + nUp){
           showToast("Berhenti: token " + nTok + " akun habis. Login ulang lalu lanjutkan.");
           log("BERHENTI karena TOKEN habis (bukan kuota): " + nTok + " akun perlu login ulang. Sisa " + (targets.length - idx) + " event tetap 'Ready'. Klik 'Login ulang' pada kartu akun, lalu tekan tombol upload lagi untuk melanjutkan.", "error");
         } else {
           showToast("Semua akun sudah habis / tidak bisa dipakai");
-          log("Semua akun tidak bisa dipakai (token habis: " + nTok + ", limit tercapai: " + nLimit + ", kuota Client habis: " + nQuota + (appMode === "live" ? ", live belum aktif: " + nLive : "") + "). Sisa " + (targets.length - idx) + " event belum diproses. Tambah akun / Client ID, login ulang, atau naikkan limit untuk lanjut.", "error");
+          log("Semua akun tidak bisa dipakai (token habis: " + nTok + ", limit tercapai: " + nLimit + ", kuota Client habis: " + nQuota + ", batas upload channel: " + nUp + (appMode === "live" ? ", live belum aktif: " + nLive : "") + "). Sisa " + (targets.length - idx) + " event belum diproses. Tambah akun / Client ID, login ulang, atau naikkan limit untuk lanjut.", "error");
         }
         accounts.forEach(function(a, i){
           log("  Akun #" + (i+1) + " " + (a.channelTitle || a.email || "?") + ": " + a.usedCount + "/" + limitPerAccount + (a.expired ? " (token habis)" : ""), "error");
@@ -2460,6 +2512,13 @@
             }
             idx++;
             advance();
+          } else if (res.uploadLimit){
+            // Batas upload harian per CHANNEL: berhenti mencoba akun ini (percuma, semua upload berikutnya pasti ditolak).
+            row.status = "ready";
+            acc.uploadLimitBlocked = true;
+            log("⚠ Akun " + (acc.channelTitle || acc.email) + ": " + UPLOAD_LIMIT_HINT + " Akun ini dilewati.", "error");
+            activeAccountIndex++;
+            advance();   // idx TIDAK bertambah
           } else if (res.channelBlocked){
             // Masalah ada di CHANNEL akun ini (live belum aktif / terblokir / izin kurang), bukan kuota. Lewati akun, coba akun lain.
             row.status = "ready";
@@ -2505,7 +2564,7 @@
       // Jeda antar-event: dilebarkan khusus mode Live + ada thumbnail upload (thumbnails.set gampang kena rate limit 429
       // kalau ditembak beruntun cepat), supaya lebih longgar dan gak gampang ke-burst-limit lagi.
       var delayMs = (appMode === "live" && userImages.length) ? 2500 : 1000;
-      setTimeout(next, delayMs);
+      bgTimeout(next, delayMs);
     }
     next();
   }
