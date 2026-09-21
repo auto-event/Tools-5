@@ -1,0 +1,2662 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>YouTube CSV Auto Event Uploader v4.8 (Vanilla JS)</title>
+<meta name="theme-color" content="#0f0f0f">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="YT Auto Event">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f00'/%3E%3Cpath d='M26 20v24l20-12z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABw0lEQVR42tWXMU4DMRBFn+2IFoIUQKkoqegQB0DAPejpKKnouAQHIFdIkzsg0REoUgASBWXY9aewFy8IpJhssjDSyLvrkf/32H89BkBgY7spuBTcCrxADbmPY14KNuuYdfAjwUODoD/5g+DoK4mDWkDR8OzrWShq7wcVeE8w+SZgUV5NcCLoWeAM6AMecCzeXMTqA2dGcAdsh2TENVm8ecAA90YBuDWztEtANqYig7IN3oyZvJGcA++DdzpgTCNLMAPPCLS+DoMB7OxAUQRRuTmFM5N2jQnt6qpUltLrq3R+Lq2shO/OpZhMzyPQ7UpPT/qwmxvp+DjFObcEAi8vkvfSdJqIXF1J/X6IsTb4QglIgURZhlaSHh+l09MlZaAiUNnbW3oejaTDw7AcM2SiGUEbE4YD2NsLKplVonNlwPs0++k07IWtrRY24XAo7e//Sg35BJ6fE/BkIp2cfAbO/B/kEVhbk4oipP3iQtrYSP0Z0vs9gV5Pur6WdndTX6czV4WUVw84B2X5+WDSfKd5fkFSHcXeN6NgpfLonxQkzZqxwDiWZX6JwD5iji0wiFlYZm2oiDlo/WLyJ65mf+Jy2tr1/B2tpNgY4uYfJAAAAABJRU5ErkJggg==">
+<link rel="icon" type="image/png" sizes="192x192" href="data:image/png;base64,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">
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,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">
+<style>
+  :root{
+    --bg:#0f0f0f; --panel:#212121; --border:#303030; --red:#ff0000; --text:#f1f1f1; --muted:#9a9a9a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+  body{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;}
+  header{position:sticky;top:0;z-index:20;backdrop-filter:blur(20px);background:rgba(15,15,15,.9);border-bottom:1px solid var(--border);padding-top:env(safe-area-inset-top,0px);}
+  .header-inner{max-width:1000px;margin:0 auto;padding:0 16px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-icon{width:36px;height:36px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .brand h1{font-size:14px;font-weight:700;margin:0;line-height:1.2;}
+  .brand p{font-size:10.5px;color:var(--muted);margin:2px 0 0;}
+  .user-chip{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:999px;padding:5px 12px 5px 5px;font-size:11px;}
+  .user-chip img{width:26px;height:26px;border-radius:999px;}
+  .avatar-fallback{width:26px;height:26px;border-radius:999px;background:#3a3a3a;display:flex;align-items:center;justify-content:center;font-size:11px;}
+  .dot{width:7px;height:7px;border-radius:999px;background:#22c55e;}
+  .dot.off{background:#555;}
+  main{max-width:1000px;margin:0 auto;padding:24px 16px 60px;display:flex;flex-direction:column;gap:20px;}
+  section{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+  .sec-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  .sec-head-left{display:flex;align-items:center;gap:10px;}
+  .num-badge{width:26px;height:26px;border-radius:999px;background:rgba(255,0,0,.15);color:var(--red);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .sec-head h2{font-size:14px;font-weight:600;margin:0;}
+  .tag-pill{font-size:11px;padding:2px 9px;border-radius:999px;background:var(--border);color:#ccc;}
+  .sec-body{padding:20px;}
+  label{display:block;font-size:12px;font-weight:500;color:#c8c8c8;margin-bottom:6px;}
+  input[type=text], textarea, select{
+    width:100%;background:var(--bg);border:1px solid var(--border);border-radius:12px;
+    padding:11px 13px;color:var(--text);font-size:13px;font-family:inherit;
+  }
+  input:focus, textarea:focus, select:focus{outline:none;border-color:rgba(255,0,0,.5);}
+  textarea{resize:vertical;min-height:60px;}
+  .field{margin-bottom:14px;}
+  button{border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;padding:12px 18px;font-family:inherit;transition:opacity .15s,background .15s;}
+  button:disabled{opacity:.4;cursor:not-allowed;}
+  .btn-primary{background:var(--red);color:#fff;}
+  .btn-primary:hover:not(:disabled){background:#e60000;}
+  .btn-white{background:#fff;color:#000;}
+  .btn-white:hover:not(:disabled){background:#ddd;}
+  .btn-ghost{background:var(--border);color:var(--text);}
+  .btn-ghost:hover:not(:disabled){background:#3a3a3a;}
+  .row-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .pill-row{display:flex;flex-wrap:wrap;gap:8px;font-size:11px;}
+  .pill{padding:5px 11px;border-radius:999px;border:1px solid var(--border);color:var(--muted);}
+  .pill.ok{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.1);color:#86efac;}
+  .note-box{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:14px;font-size:11px;color:var(--muted);line-height:1.7;}
+  .note-box b{color:#ccc;}
+  .drop{position:relative;border:2px dashed var(--border);border-radius:16px;padding:28px 16px;display:flex;flex-direction:column;align-items:center;text-align:center;background:var(--bg);transition:border-color .15s, background .15s;cursor:pointer;}
+  .drop.drag{border-color:var(--red);background:rgba(255,0,0,.08);}
+  .drop-icon{width:48px;height:48px;border-radius:12px;background:var(--panel);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px;}
+  .drop p{margin:0;font-size:13px;font-weight:500;}
+  .drop p.small{font-size:11px;color:var(--muted);margin-top:4px;}
+  .warn-box{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.2);border-radius:14px;padding:12px;margin-top:14px;display:flex;flex-direction:column;gap:6px;}
+  .warn-line{display:flex;gap:8px;font-size:11px;color:#fcd34d;}
+  table{width:100%;font-size:12px;border-collapse:collapse;}
+  thead th{text-align:left;padding:10px;font-weight:500;color:var(--muted);font-size:11px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);}
+  tbody td{padding:10px;border-bottom:1px solid #262626;}
+  tbody tr:hover{background:rgba(255,255,255,.02);}
+  .table-wrap{overflow:auto;max-height:340px;border-radius:14px;border:1px solid var(--border);background:var(--bg);}
+  .badge-privacy{padding:2px 8px;border-radius:6px;font-size:10px;}
+  .badge-privacy.public{background:rgba(34,197,94,.2);color:#86efac;}
+  .badge-privacy.unlisted{background:rgba(245,158,11,.2);color:#fcd34d;}
+  .badge-privacy.private{background:var(--border);color:#ccc;}
+  .status-tag{font-size:11px;padding:5px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;}
+  .status-tag.ready{background:var(--panel);border:1px solid var(--border);color:var(--muted);}
+  .status-tag.loading{background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:#93c5fd;}
+  .status-tag.sukses{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#86efac;}
+  .status-tag.gagal{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#fca5a5;}
+  .status-tag.skip{background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.2);color:#cbd5e1;}
+  .progress-bar{height:8px;background:var(--bg);border:1px solid var(--border);border-radius:999px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--red);transition:width .3s;width:0%;}
+  .log-box{background:#000;border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+  .log-head{padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg);display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:500;}
+  .log-body{height:200px;overflow:auto;padding:12px;font-size:11px;font-family:ui-monospace,monospace;}
+  .log-line{display:flex;gap:8px;margin-bottom:4px;word-break:break-all;}
+  .log-line .t{color:#555;flex-shrink:0;}
+  .log-line.info{color:var(--muted);}
+  .log-line.success{color:#86efac;}
+  .log-line.error{color:#fca5a5;}
+  .clear-btn{font-size:11px;color:var(--muted);background:none;border:none;padding:0;cursor:pointer;}
+  .preview-assets{display:flex;gap:14px;align-items:center;margin-top:14px;flex-wrap:wrap;}
+  video.gen-preview, img.gen-preview, canvas.gen-preview{width:140px;height:78.75px;object-fit:cover;border-radius:10px;border:1px solid var(--border);background:#000;}
+  .asset-label{font-size:11px;color:var(--muted);margin-top:6px;}
+  .empty-state{padding:48px 16px;text-align:center;}
+  .empty-icon{width:48px;height:48px;margin:0 auto 12px;border-radius:12px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--muted);}
+  .empty-state p{font-size:13px;color:var(--muted);margin:0;}
+  .toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:14px;}
+  .checkbox-lbl{display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#fff;color:#000;padding:10px 18px;border-radius:999px;font-size:12px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:50;display:none;}
+  code.inline{background:var(--bg);border:1px solid var(--border);padding:1px 6px;border-radius:6px;font-size:11px;}
+  a{color:inherit;}
+  #csvFileInput{display:none;}
+  pre.tpl{font-family:ui-monospace,monospace;font-size:11px;color:var(--muted);margin-top:14px;white-space:pre-wrap;overflow:auto;}
+
+  .acc-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;}
+  .acc-card.active{border-color:rgba(255,0,0,.5);background:rgba(255,0,0,.06);}
+  .acc-card.exhausted{opacity:.55;}
+  .acc-avatar{width:34px;height:34px;border-radius:999px;flex-shrink:0;background:#3a3a3a;display:flex;align-items:center;justify-content:center;font-size:12px;overflow:hidden;}
+  .acc-avatar img{width:100%;height:100%;object-fit:cover;}
+  .acc-info{flex:1;min-width:0;}
+  .acc-name{font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .acc-sub{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .acc-quota{font-size:10.5px;color:var(--muted);flex-shrink:0;text-align:right;}
+  .acc-quota b{color:var(--text);}
+  .acc-badge-active{font-size:9.5px;font-weight:700;color:var(--red);background:rgba(255,0,0,.15);padding:2px 7px;border-radius:999px;flex-shrink:0;}
+  .acc-relogin{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:var(--text);cursor:pointer;font-size:10.5px;font-weight:600;padding:5px 9px;border-radius:8px;flex-shrink:0;white-space:nowrap;}
+  .acc-relogin:hover{background:rgba(255,255,255,.16);}
+  .acc-relogin.urgent{background:rgba(255,0,0,.18);border-color:rgba(255,0,0,.5);color:#fca5a5;}
+  .acc-remove{background:none;border:none;color:#666;cursor:pointer;font-size:16px;padding:2px 6px;flex-shrink:0;}
+  .acc-remove:hover{color:#fca5a5;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-icon">&#9654;</div>
+      <div>
+        <h1>YouTube CSV Auto Event Uploader v4.8</h1>
+        <p>Bulk jadwal dari Excel/CSV &bull; WIB &rarr; YouTube (upload video <b>atau</b> jadwal live)</p>
+      </div>
+    </div>
+    <div id="userChip" class="user-chip"><span class="dot off"></span>&nbsp;0 Akun</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- SECTION 1: SETUP KONEKSI -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-head-left"><div class="num-badge">1</div><h2>Setup Koneksi</h2></div>
+      <span class="tag-pill">Wajib</span>
+    </div>
+    <div class="sec-body">
+      <div class="field">
+        <label>Mode</label>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-white" id="modeVideoBtn" style="flex:1;">Upload Video</button>
+          <button class="btn-ghost" id="modeLiveBtn" style="flex:1;">Jadwal Live</button>
+        </div>
+        <div class="note-box" id="modeNote" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="field">
+        <label>Google OAuth Client ID (boleh lebih dari satu)</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="clientIdInput" placeholder="xxx.apps.googleusercontent.com" style="flex:1;">
+          <button class="btn-white" id="saveClientIdBtn" style="flex-shrink:0;">Tambah</button>
+        </div>
+        <div id="clientIdList" style="margin-top:10px; display:flex; flex-direction:column; gap:6px;"></div>
+        <div class="note-box" style="margin-top:10px;">
+          <b>Kuota YouTube dihitung per Client ID (per project Google Cloud), bukan per akun.</b> Menurut dokumentasi Google (diperbarui 15 Sep 2026),
+          tiap project mendapat <b>100 upload video/hari</b> (bucket sendiri, 1 unit/upload) dan <b>10.000 unit/hari</b> untuk method lain
+          (jadwal live 50 unit, thumbnail 50 unit, update tag 50 unit).
+          Menambah akun di Client ID yang sama <b>tidak</b> menambah kuota; menambah <b>Client ID dari project berbeda</b> yang menambah kuota.
+          Kalau Client ID masih status <b>Testing</b>, tiap akun yang dipakai wajib didaftarkan di <b>Audience &rarr; Test users</b> project itu.
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:18px;">
+        <label>Multi-Akun &amp; Router Otomatis</label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <select id="addAccountClientSelect" style="flex:1;min-width:140px;padding:11px 8px;"></select>
+          <button class="btn-ghost" id="reloginAllBtn" style="display:none;flex-shrink:0;">Login ulang yang habis</button>
+          <button class="btn-primary" id="addAccountBtn" style="flex:1;min-width:140px;">+ TAMBAH AKUN</button>
+          <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);white-space:nowrap;">
+            Limit/akun:
+            <input type="text" id="limitPerAccountInput" value="100" style="width:48px;text-align:center;padding:8px 6px;">
+            event
+          </div>
+        </div>
+        <div class="note-box" style="margin-top:10px;">
+          Pilih dulu <b>Client ID</b> di dropdown, lalu klik <b>Tambah Akun</b>: muncul popup pilih akun Google (selalu tampil layar pilih akun, tidak auto-skip).
+          Tool <b>tidak bisa login sendiri</b> hanya dari email; tiap akun tetap perlu satu kali persetujuan di popup, tapi Client ID yang dipakai dicatat otomatis.
+          Akun yang sama tidak bisa ditambahkan dua kali di Client ID yang sama.
+          Kalau 1 akun Google punya beberapa Brand Account/channel, <b>switch dulu manual</b> di studio.youtube.com ke channel yang dimaksud
+          sebelum klik Tambah Akun, supaya token yang didapat terikat ke channel yang benar. Kalau semua akun cuma channel utama
+          (tanpa Brand Account), langsung Tambah Akun saja, tidak perlu switch apa pun.
+        </div>
+        <div id="accountsList" style="margin-top:12px; display:flex; flex-direction:column; gap:8px;"></div>
+      </div>
+
+      <div class="pill-row" style="margin-top:14px;">
+        <span class="pill" id="pillGsi">GSI: Loading...</span>
+        <span class="pill" id="pillClientId">ClientID: Belum</span>
+      </div>
+      <div class="note-box" style="margin-top:14px;">
+        <b>Mode video biasa (bukan live streaming):</b> tool ini pakai <code class="inline">videos.insert</code> saja (tanpa <code class="inline">thumbnails.set</code>,
+        thumbnail otomatis diambil YouTube dari gambar di dalam video), jadi <b>tidak butuh</b> channel di-enable untuk live streaming
+        dan tidak butuh verifikasi telepon untuk thumbnail custom. Video di-upload sebagai <code class="inline">private</code> dengan
+        <code class="inline">publishAt</code> terjadwal (WIB dikonversi ke UTC) &mdash; otomatis tayang saat jadwalnya tiba.
+        Router pindah akun begitu limit/akun tercapai, dan kalau Google menolak karena kuota, <b>semua akun di Client ID yang sama</b> ditandai penuh
+        lalu router lompat ke Client ID lain.
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: UPLOAD CSV / EXCEL -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-head-left"><div class="num-badge">2</div><h2>Upload CSV / Excel</h2></div>
+      <span class="tag-pill">.csv .xlsx .xls</span>
+    </div>
+    <div class="sec-body">
+      <div class="drop" id="dropZone">
+        <div class="drop-icon">&#8593;</div>
+        <p>Drag &amp; Drop file kesini</p>
+        <p class="small">Atau klik tombol dibawah &mdash; format lama (header title, date, time, description, privacy, tags) atau format baru tanpa header</p>
+        <button class="btn-white" style="margin-top:14px;" id="pickFileBtn">Pilih File</button>
+        <input type="file" id="csvFileInput" accept=".csv,.xlsx,.xls">
+      </div>
+
+      <div class="note-box" style="margin-top:14px;">
+        <b>Format tanpa header (otomatis dikenali):</b> tiap baris = 1 event. Kolom pertama = judul; kolom berlabel
+        <code class="inline">Date:</code> dan <code class="inline">Time:</code> (mis. <i>Saturday, Sep 19, 2026</i> dan <i>4:00 PM CDT</i>) dibaca sebagai jadwal
+        dibaca apa adanya beserta zona waktunya (jam tidak diubah; YouTube tetap menerima waktu yang tepat); kolom lain jadi deskripsi; kolom berawalan <code class="inline">#</code> jadi hashtag dan tags.<br>
+        <label style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;">Privacy untuk format ini:
+          <select id="newFormatPrivacy" style="width:auto;padding:8px;">
+            <option value="private" selected>private</option>
+            <option value="unlisted">unlisted</option>
+            <option value="public">public</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="warnBox"></div>
+
+      <div class="table-wrap" style="margin-top:14px; display:none;" id="previewTableWrap">
+        <table>
+          <thead><tr><th>Title</th><th>Date</th><th>Time</th><th>Privacy</th><th>Tags</th></tr></thead>
+          <tbody id="previewTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="note-box" style="margin-top:14px;">
+        <b>Format header wajib:</b> <code class="inline">title,date,time,description,privacy,tags</code><br>
+        Contoh: "Ngoding Malam",2026-09-20,20:00,"Ngoding santai",public,"ngoding" &bull; Date YYYY-MM-DD &bull; Time HH:mm WIB<br>
+        Baris dengan tanggal yang sudah lewat akan otomatis di-skip saat upload, bukan menghentikan proses.
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: GAMBAR VIDEO 5 DETIK -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-head-left"><div class="num-badge">3</div><h2>Gambar Video (5 detik)</h2></div>
+      <span class="tag-pill" id="imgModePill">Mode: desain otomatis</span>
+    </div>
+    <div class="sec-body">
+      <div class="note-box" style="margin-bottom:14px;">
+        <b>Mode Video:</b> tiap event di-render jadi <b>video WebM 5 detik</b> dari gambar (1280&times;720); thumbnail otomatis diambil YouTube dari frame video.<br>
+        <b>Mode Jadwal Live:</b> gambar yang dipilih dipakai sebagai <b>thumbnail JPEG</b> (dijaga &lt; 2 MB) lewat <code class="inline">thumbnails.set</code>; tidak ada video yang dirender.<br>
+        &bull; <b>Tanpa upload gambar:</b> desain otomatis dari judul + jadwal tiap event (beda-beda per event).<br>
+        &bull; <b>Upload 1 gambar:</b> gambar itu dipakai sama untuk semua event.<br>
+        &bull; <b>Upload &gt;1 gambar:</b> gambar dibagi <b>bergilir (round-robin)</b> ke tiap event sesuai urutan di tabel, supaya thumbnail tidak sama semua. Contoh 3 gambar &amp; 10 event: gambar 1,2,3,1,2,3,1,2,3,1.
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+        <button class="btn-white" id="pickImageBtn" style="flex:1;min-width:160px;">+ Tambah Gambar</button>
+        <button class="btn-ghost" id="clearImageBtn" style="display:none;">Hapus Semua</button>
+        <input type="file" id="imageFileInput" accept="image/png,image/jpeg,image/webp" multiple style="display:none;">
+      </div>
+
+      <div id="imageGallery" style="display:none; flex-wrap:wrap; gap:10px; margin-bottom:12px;"></div>
+
+      <label class="checkbox-lbl" id="overlayWrap" style="display:none;margin-bottom:12px;">
+        <input type="checkbox" id="overlayTitleChk"> Tempel judul event di atas gambar upload
+      </label>
+
+      <div class="preview-assets" id="assetPreview"></div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: DAFTAR EVENT & ACTION -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-head-left">
+        <div class="num-badge">4</div><h2>Daftar Event &amp; Action</h2>
+        <span class="tag-pill" id="eventCountPill" style="display:none;">0 event</span>
+      </div>
+    </div>
+    <div class="sec-body">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">&#9776;</div>
+        <p>Belum ada data. Upload CSV/Excel dulu di atas.</p>
+      </div>
+
+      <div id="restoreBanner" style="display:none;"></div>
+
+      <div id="eventsArea" style="display:none;">
+        <div class="toolbar">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <label class="checkbox-lbl"><input type="checkbox" id="selectAllChk" checked> Pilih semua</label>
+            <span style="font-size:11px;color:var(--muted);" id="selectedCountLabel">0 dipilih</span>
+          </div>
+          <button class="btn-primary" id="uploadAllBtn">UPLOAD EVENT KE YOUTUBE</button>
+        </div>
+
+        <button class="btn-ghost" id="fixThumbsBtn" style="display:none;width:100%;margin-bottom:14px;">Perbaiki Thumbnail Gagal</button>
+
+        <div style="margin-bottom:14px; display:none;" id="progressWrap">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;">
+            <span>Progress bulk upload...</span><span class="mono" id="progressLabel">0/0</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+
+        <div class="table-wrap" style="max-height:420px;">
+          <table>
+            <thead><tr><th>Title &amp; Jadwal</th><th>Privacy</th><th>Status</th></tr></thead>
+            <tbody id="eventsTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="log-box" style="margin-top:14px;">
+          <div class="log-head">
+            <span>Log Output</span>
+            <span style="display:flex;gap:14px;">
+              <button class="clear-btn" id="downloadLogBtn">Unduh Log</button>
+              <button class="clear-btn" id="clearLogBtn">Clear</button>
+            </span>
+          </div>
+          <div class="log-body" id="logBody"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: TEMPLATE & CONTOH -->
+  <section>
+    <div class="sec-head"><div class="sec-head-left"><div class="num-badge">5</div><h2>Template &amp; Contoh</h2></div></div>
+    <div class="sec-body">
+      <button class="btn-ghost" id="downloadTemplateBtn" style="width:100%;text-align:left;display:flex;align-items:center;gap:12px;">
+        <span style="font-size:18px;">&#8595;</span>
+        <span>
+          <div style="font-weight:500;font-size:13px;">Download Template CSV</div>
+          <div style="font-size:11px;color:var(--muted);">Siap pakai, 3 contoh event</div>
+        </span>
+      </button>
+      <pre class="mono tpl" id="tplPreview"></pre>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+(function(){
+  "use strict";
+
+  // ================= NAMESPACE PENYIMPANAN (per salinan/repo) =================
+  // localStorage dibagi per ORIGIN, bukan per path. Semua repo di username.github.io satu origin,
+  // jadi tanpa ini semua clone membaca/menimpa kunci yang sama. Di sini semua kunci "yt_csv_*" diberi
+  // awalan nama folder/repo (mis. "repo-a::yt_csv_v4_state"). Di root domain (path "/") kunci tidak berubah.
+  var localStorage = (function(){
+    var real = window.localStorage;
+    var ns = location.pathname.replace(/[^\/]*$/, "").replace(/^\/+|\/+$/g, "");
+    var prefix = ns ? ns + "::" : "";
+    if (!prefix) return real;
+    // Migrasi satu kali: data lama (tanpa awalan) diklaim oleh SATU salinan yang pertama dibuka, lalu ditandai.
+    // Salinan lain mulai dari kosong. Kunci lama tidak dihapus.
+    try {
+      var CLAIM = "yt_csv__legacy_claimed_by";
+      if (real.getItem(CLAIM) === null){
+        var legacy = [];
+        for (var i = 0; i < real.length; i++){
+          var k = real.key(i);
+          if (k && k.indexOf("yt_csv_") === 0) legacy.push(k);
+        }
+        if (legacy.length){
+          legacy.forEach(function(k){
+            if (real.getItem(prefix + k) === null) real.setItem(prefix + k, real.getItem(k));
+          });
+          real.setItem(CLAIM, ns);
+        }
+      }
+    } catch (e){}
+    return {
+      getItem:    function(k){ return real.getItem(prefix + k); },
+      setItem:    function(k, v){ return real.setItem(prefix + k, v); },
+      removeItem: function(k){ return real.removeItem(prefix + k); }
+    };
+  })();
+
+  // ================= KONSTANTA & STATE =================
+  var CSV_TEMPLATE = 'title,date,time,description,privacy,tags\n' +
+    '"Ngoding Malam",2026-09-20,20:00,"Ngoding santai bareng subscriber",public,"ngoding"\n' +
+    '"Podcast Bisnis",2026-09-21,19:30,"Bahas strategi bisnis online",unlisted,"bisnis,podcast"\n' +
+    '"QnA Subscriber",2026-09-22,20:00,"Jawab pertanyaan subscriber",private,"qna"\n';
+
+  // ---- daftar Client ID (multi). Migrasi otomatis dari penyimpanan lama yang cuma satu Client ID.
+  var clientIds = (function(){
+    var list = [];
+    try { var raw = localStorage.getItem("yt_csv_client_ids"); if (raw) list = JSON.parse(raw); } catch (e){ list = []; }
+    if (!Array.isArray(list)) list = [];
+    var legacy = localStorage.getItem("yt_csv_client_id") || "";
+    if (legacy && list.indexOf(legacy) === -1) list.unshift(legacy);
+    return list.filter(function(x){ return typeof x === "string" && x; });
+  })();
+  var tokenClients = {};   // { clientId: google token client } satu per Client ID
+  // ---- state login ulang (dideklarasikan di atas supaya callback GSI yang cepat pun aman) ----
+  var pendingRelogin = null;       // { acc, clientId, email }  akun yang sedang diminta login ulang
+  var pendingNextRelogin = null;   // akun berikutnya di antrean, menunggu klik pengguna
+  var reloginQueue = [];           // antrean akun untuk "Login ulang yang habis"
+  var reloginTotal = 0;
+  var clientId = clientIds.length ? clientIds[0] : "";   // dipertahankan agar kode lama (pill, tombol) tetap jalan
+  // Selesaikan migrasi: kalau masih ada format lama, tulis ke format baru sekarang juga.
+  (function finishMigration(){
+    try {
+      if (localStorage.getItem("yt_csv_client_id") && clientIds.length){
+        localStorage.setItem("yt_csv_client_ids", JSON.stringify(clientIds));
+        localStorage.removeItem("yt_csv_client_id");
+      }
+    } catch (e){}
+  })();
+  var gsiReady = false;
+
+  // Daftar akun multi-login. Tiap item: { id, token, email, name, picture, channelTitle, usedCount }
+  // "usedCount" = berapa event yang sudah sukses diupload lewat akun ini pada sesi bulk-upload berjalan.
+  var accounts = [];
+  var activeAccountIndex = 0;   // index akun yang lagi dipakai router sekarang
+  var limitPerAccount = 6;      // nilai sementara, dikoreksi ke kuota per-mode setelah appMode diketahui (lihat bawah)
+  var limitAutoManaged = true;  // true = "Limit/akun" masih ikut kuota per-mode otomatis; jadi false begitu user ketik manual
+
+  var events = [];          // hasil parse CSV/Excel
+  var selectedIds = {};     // map _id -> true
+
+  // ---- MODE: "video" (videos.insert) atau "live" (liveBroadcasts.insert) ----
+  // Biaya per event menurut https://developers.google.com/youtube/v3/determine_quota_cost (diperbarui 15 Sep 2026):
+  //   video : videos.insert = 1 unit dari bucket SENDIRI 100/hari (tidak memakai 10.000 unit)
+  //   live  : liveBroadcasts.insert 50 + thumbnails.set 50 + videos.update (tag) 50 = 150 unit dari 10.000 unit bersama
+  var COST = { live: { insert: 50, thumb: 50, tags: 50 }, DAILY_UNITS: 10000, VIDEO_BUCKET: 100 };
+  // videos.update MENIMPA seluruh snippet dan mewajibkan categoryId. Agar kategori tidak berubah diam-diam, nilai yang SAMA
+  // dikirim saat membuat broadcast (snippet.categoryId boleh diisi di liveBroadcasts.insert) dan saat update tag.
+  var LIVE_CATEGORY_ID = "22";   // 22 = People & Blogs
+
+  // ================= ESTIMASI KUOTA PER CLIENT ID =================
+  // Google TIDAK punya endpoint buat nanya sisa kuota hari ini -> ini cuma HITUNGAN LOKAL dari apa yang tool ini
+  // sendiri sudah kirim (tidak tahu kalau Client ID yang sama dipakai script/tool lain di luar sini).
+  // Kuota live (10.000 unit bersama) & kuota video (bucket terpisah 100/hari) dilacak TERPISAH per Client ID,
+  // dan direset mengikuti tanggal Pacific Time (bukan WIB) karena itu waktu reset asli dari Google.
+  var LS_CLIENT_QUOTA = "yt_csv_client_quota";
+  function pacificDateKey(d){
+    try { return (d || new Date()).toLocaleDateString("en-CA", { timeZone: "America/Los_Angeles" }); }
+    catch (e){ return (d || new Date()).toISOString().slice(0, 10); }
+  }
+  function loadClientQuota(){
+    try { var raw = localStorage.getItem(LS_CLIENT_QUOTA); var o = raw ? JSON.parse(raw) : {}; return (o && typeof o === "object") ? o : {}; }
+    catch (e){ return {}; }
+  }
+  var clientQuota = loadClientQuota();   // { [clientId]: { day: "YYYY-MM-DD" (PT), liveUnits: 0, videoSlots: 0 } }
+  function persistClientQuota(){ try { localStorage.setItem(LS_CLIENT_QUOTA, JSON.stringify(clientQuota)); } catch (e){} }
+  function getClientQuota(cid){
+    var today = pacificDateKey();
+    var q = clientQuota[cid];
+    if (!q || q.day !== today){ q = { day: today, liveUnits: 0, videoSlots: 0 }; clientQuota[cid] = q; }
+    return q;
+  }
+  function addClientQuotaUsage(cid, mode, unitsUsed){
+    var q = getClientQuota(cid);
+    if (mode === "live") q.liveUnits += (unitsUsed || 0); else q.videoSlots += 1;
+    persistClientQuota();
+  }
+  var LIVE_EVENT_COST = COST.live.insert + COST.live.thumb + COST.live.tags;   // 150
+  function eventsPerDayPerClient(mode){
+    return mode === "live" ? Math.floor(COST.DAILY_UNITS / LIVE_EVENT_COST) : COST.VIDEO_BUCKET;   // 66 vs 100
+  }
+  var LS_MODE = "yt_csv_mode";
+  var appMode = (function(){ try { var m = localStorage.getItem("yt_csv_mode"); return m === "live" ? "live" : "video"; } catch (e){ return "video"; } })();
+  // Default "Limit/akun" mengikuti kuota harian per Client ID sesuai mode: 66 (live) / 100 (video).
+  // saveState/restoreState di bawah bisa menimpa ini kalau ada sesi tersimpan (dan mematikan limitAutoManaged).
+  limitPerAccount = eventsPerDayPerClient(appMode);
+  var VIDEO_SECONDS = 5;
+  var VIDEO_W = 1280, VIDEO_H = 720;
+  // Galeri gambar upload user. Array kosong = mode desain otomatis.
+  // Tiap item: { img: HTMLImageElement, url: object URL, name: nama file }
+  // >1 gambar dibagi bergilir (round-robin) per event berdasarkan posisi event di daftar.
+  var userImages = [];
+  var renderingVideo = false;  // true selama satu video sedang di-render
+
+  var running = false;
+
+  // ================= ELEMEN DOM =================
+  var el = {
+    clientIdInput: document.getElementById("clientIdInput"),
+    saveClientIdBtn: document.getElementById("saveClientIdBtn"),
+    clientIdList: document.getElementById("clientIdList"),
+    addAccountClientSelect: document.getElementById("addAccountClientSelect"),
+    reloginAllBtn: document.getElementById("reloginAllBtn"),
+    modeVideoBtn: document.getElementById("modeVideoBtn"),
+    modeLiveBtn: document.getElementById("modeLiveBtn"),
+    modeNote: document.getElementById("modeNote"),
+    addAccountBtn: document.getElementById("addAccountBtn"),
+    limitPerAccountInput: document.getElementById("limitPerAccountInput"),
+    accountsList: document.getElementById("accountsList"),
+    pillGsi: document.getElementById("pillGsi"),
+    pillClientId: document.getElementById("pillClientId"),
+    userChip: document.getElementById("userChip"),
+
+    dropZone: document.getElementById("dropZone"),
+    pickFileBtn: document.getElementById("pickFileBtn"),
+    csvFileInput: document.getElementById("csvFileInput"),
+    warnBox: document.getElementById("warnBox"),
+    newFormatPrivacy: document.getElementById("newFormatPrivacy"),
+    previewTableWrap: document.getElementById("previewTableWrap"),
+    previewTableBody: document.getElementById("previewTableBody"),
+
+    pickImageBtn: document.getElementById("pickImageBtn"),
+    clearImageBtn: document.getElementById("clearImageBtn"),
+    imageFileInput: document.getElementById("imageFileInput"),
+    imageGallery: document.getElementById("imageGallery"),
+    overlayWrap: document.getElementById("overlayWrap"),
+    overlayTitleChk: document.getElementById("overlayTitleChk"),
+    imgModePill: document.getElementById("imgModePill"),
+    assetPreview: document.getElementById("assetPreview"),
+
+    eventCountPill: document.getElementById("eventCountPill"),
+    emptyState: document.getElementById("emptyState"),
+    eventsArea: document.getElementById("eventsArea"),
+    selectAllChk: document.getElementById("selectAllChk"),
+    selectedCountLabel: document.getElementById("selectedCountLabel"),
+    uploadAllBtn: document.getElementById("uploadAllBtn"),
+    progressWrap: document.getElementById("progressWrap"),
+    progressLabel: document.getElementById("progressLabel"),
+    progressFill: document.getElementById("progressFill"),
+    eventsTableBody: document.getElementById("eventsTableBody"),
+    logBody: document.getElementById("logBody"),
+    clearLogBtn: document.getElementById("clearLogBtn"),
+    downloadLogBtn: document.getElementById("downloadLogBtn"),
+    fixThumbsBtn: document.getElementById("fixThumbsBtn"),
+    restoreBanner: document.getElementById("restoreBanner"),
+
+    downloadTemplateBtn: document.getElementById("downloadTemplateBtn"),
+    tplPreview: document.getElementById("tplPreview"),
+
+    toast: document.getElementById("toast"),
+  };
+
+  el.tplPreview.textContent = CSV_TEMPLATE;
+  el.clientIdInput.value = "";
+  el.limitPerAccountInput.value = limitPerAccount;
+
+  // ================= HELPERS UMUM =================
+  function showToast(msg){
+    el.toast.textContent = msg;
+    el.toast.style.display = "block";
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(function(){ el.toast.style.display = "none"; }, 2800);
+  }
+
+  function appendLogLine(ts, type, text){
+    var line = document.createElement("div");
+    line.className = "log-line " + type;
+    var t = document.createElement("span");
+    t.className = "t";
+    t.textContent = "[" + fmtTime(ts) + "]";
+    var msg = document.createElement("span");
+    msg.textContent = text;
+    line.appendChild(t);
+    line.appendChild(msg);
+    el.logBody.appendChild(line);
+    el.logBody.scrollTop = el.logBody.scrollHeight;
+  }
+  function log(text, type){
+    type = type || "info";
+    var ts = Date.now();
+    appendLogLine(ts, type, text);
+    logBuffer.push({ t: ts, type: type, text: String(text) });
+    if (logBuffer.length > LOG_MAX) logBuffer = logBuffer.slice(logBuffer.length - LOG_MAX);
+    saveLog();
+  }
+
+  function genId(){ return Math.random().toString(36).slice(2, 9); }
+  function fmtNum(n){ return Number(n || 0).toLocaleString("id-ID"); }
+
+  // ================= MODE (video / live) =================
+  function applyModeUi(){
+    var live = appMode === "live";
+    el.modeVideoBtn.className = live ? "btn-ghost" : "btn-white";
+    el.modeLiveBtn.className = live ? "btn-white" : "btn-ghost";
+    el.modeNote.innerHTML = live
+      ? '<b>Mode Jadwal Live.</b> Yang dibuat adalah <b>halaman event live terjadwal</b> (judul, deskripsi, tag, thumbnail), <b>bukan video</b>. Tidak ada yang tayang otomatis: konten baru ada kalau kamu benar-benar siaran. ' +
+        'Biaya per event <b>150 unit</b> (jadwal 50 + thumbnail 50 + tag 50) &asymp; <b>' + eventsPerDayPerClient("live") + ' event/hari per Client ID</b>. ' +
+        '<b>Syarat:</b> live streaming harus <b>aktif</b> di channel (verifikasi telepon, aktivasi pertama bisa sampai 24 jam) dan channel harus terverifikasi untuk thumbnail. ' +
+        'Jadwal harus di masa depan dan &ldquo;cukup dekat&rdquo; (batas Google tidak dipublikasikan, kalau ditolak coba tanggal lebih dekat). Render video tidak dipakai.'
+      : '<b>Mode Upload Video.</b> Tiap event di-render jadi video WebM 5 detik lalu diupload. Kuota: <b>' + eventsPerDayPerClient("video") + ' upload/hari per Client ID</b> (bucket sendiri, 1 unit/upload). ' +
+        'Tidak butuh live streaming aktif dan tidak butuh thumbnail terpisah.';
+    var pill = document.getElementById("imgModePill");
+    if (pill) pill.textContent = (userImages.length ? "Mode: gambar upload (" + userImages.length + ")" : "Mode: desain otomatis") + (live ? " (thumbnail)" : " (video)");
+    updateUploadBtnState();
+  }
+  function setMode(m){
+    if (running){ showToast("Tunggu proses selesai dulu"); return; }
+    if (m === appMode) return;
+    appMode = m;
+    lsSetRaw(LS_MODE, m);
+    // status lama milik mode sebelumnya tidak relevan lagi: baris yang belum sukses dikembalikan ke ready
+    events.forEach(function(r){ if (r.status === "gagal" || r.status === "skip") { r.status = "ready"; r.message = ""; } });
+    log("Mode diganti ke: " + (m === "live" ? "Jadwal Live" : "Upload Video") + ".", "info");
+    // Kalau "Limit/akun" belum pernah diubah manual, ikutkan ke kuota harian per Client ID mode baru (66 live / 100 video).
+    if (limitAutoManaged){
+      limitPerAccount = eventsPerDayPerClient(m);
+      el.limitPerAccountInput.value = limitPerAccount;
+      log("Limit/akun otomatis disesuaikan ke " + limitPerAccount + " (kuota " + (m === "live" ? "jadwal live" : "upload video") + " per Client ID/hari).", "info");
+      saveState();
+    }
+    applyModeUi();
+    renderEventsTable();
+    updateGeneralUi();
+    renderClientIds();
+  }
+
+  // ================= MULTI CLIENT ID =================
+  function shortClientId(cid){
+    if (!cid) return "(tanpa client)";
+    var head = cid.split("-")[0];
+    return head.slice(0, 6) + "…" + head.slice(-4);
+  }
+  function persistClientIds(){
+    lsSetRaw("yt_csv_client_ids", JSON.stringify(clientIds));
+    try { localStorage.removeItem("yt_csv_client_id"); } catch (e){}   // format lama sudah dimigrasi
+  }
+  function lsSetRaw(key, val){ try { localStorage.setItem(key, val); } catch (e){} }
+  function accountsOfClient(cid){ return accounts.filter(function(a){ return a.clientId === cid; }); }
+
+  // ================= UMUR TOKEN =================
+  // Token akses Google berlaku ~60 menit. Dianggap habis di menit ke-55 supaya ada jeda aman sebelum ditolak (401).
+  // Umur token DIBACA dari TokenResponse.expires_in ("lifetime in seconds of the access token" - dokumentasi Google Identity Services).
+  // TOKEN_LIFE_MS hanya cadangan kalau expires_in tidak ada (Google umumnya memberi 3600 detik).
+  var TOKEN_LIFE_MS = 55 * 60 * 1000;
+  var TOKEN_WARN_MS = 10 * 60 * 1000;    // sisa <10 menit = "hampir habis"
+  // Umur pakai = expires_in dikurangi jeda aman (5 menit, atau 10% kalau umurnya pendek) supaya token tidak mati di tengah request.
+  function tokenLifeFromResponse(resp){
+    var sec = resp && Number(resp.expires_in);
+    if (!isFinite(sec) || sec <= 0) return TOKEN_LIFE_MS;
+    var full = sec * 1000;
+    return Math.max(0, full - Math.min(5 * 60 * 1000, full * 0.1));
+  }
+  function tokenRemainingMs(acc){
+    if (acc.expired) return 0;
+    if (!acc.loginAt) return TOKEN_LIFE_MS;   // tidak diketahui -> anggap segar (akan dikoreksi kalau 401)
+    return Math.max(0, acc.loginAt + (acc.tokenLifeMs || TOKEN_LIFE_MS) - Date.now());
+  }
+  function isTokenExpired(acc){ return acc.expired || tokenRemainingMs(acc) <= 0; }
+  function fmtRemaining(ms){
+    var m = Math.ceil(ms / 60000);
+    return m >= 1 ? m + " mnt" : "<1 mnt";
+  }
+  // Tandai akun yang tokennya sudah lewat umur, lalu kembalikan jumlahnya.
+  function refreshTokenStates(){
+    var n = 0;
+    accounts.forEach(function(a){ if (!a.expired && tokenRemainingMs(a) <= 0){ a.expired = true; n++; } });
+    return n;
+  }
+
+  // ================= PERPANJANG TOKEN OTOMATIS (SILENT REFRESH) =================
+  // GSI token client (implicit flow) tidak pernah memberi refresh_token ke sisi browser, jadi
+  // "perpanjangan otomatis" di sini artinya: minta token baru dengan prompt:"" (tanpa popup consent).
+  // Ini cuma berhasil DIAM-DIAM kalau sesi Google user masih aktif & browser tidak memblokir permintaan
+  // itu (mis. third-party storage/iframe Google diblokir). Kalau gagal, dibiarkan senyap dan akun
+  // tetap jatuh ke alur lama: warning "hampir habis" -> tombol "Login ulang" manual.
+  var SILENT_REFRESH_MARGIN_MS = TOKEN_WARN_MS;   // mulai dicoba saat sisa token <=10 menit
+  var SILENT_REFRESH_RETRY_MS = 4 * 60 * 1000;    // kalau gagal, coba lagi akun yg sama tiap >=4 menit (jangan spam)
+  var pendingSilentRefresh = null;   // akun yang sedang dicoba diperpanjang diam-diam sekarang
+  var silentRefreshQueue = [];       // akun lain yang antre dicoba setelah yang di atas selesai
+  var silentRefreshLastTry = {};     // acc.id -> timestamp percobaan terakhir
+  var SILENT_REFRESH_TIMEOUT_MS = 45 * 1000;   // popup tidak merespons selama ini -> anggap gagal (jangan macet selamanya)
+  var SILENT_REFRESH_MAX_FAILS = 2;            // setelah 2x gagal berturut-turut untuk akun yang sama, berhenti otomatis
+  var MANUAL_LOGIN_GUARD_MS = 2 * 60 * 1000;   // selama user login manual, jangan mulai perpanjangan otomatis
+  var silentRefreshFails = {};                 // acc.id -> jumlah gagal berturut-turut
+  var silentRefreshDisabled = false;           // true kalau browser memblokir popup yang tidak dipicu klik
+  var silentRefreshTimer = null;
+  var manualLoginUntil = 0;
+
+  // Cari akun yang tokennya mepet/habis dan belum dicoba baru-baru ini, lalu mulai antrean percobaan.
+  // Batalkan perpanjangan otomatis yang sedang tertunda. Dipanggil saat user memulai login MANUAL, supaya token hasil
+  // popup manual tidak salah rute ke penanganan perpanjangan otomatis (callback GIS dibagi per Client ID, bukan per permintaan).
+  function abandonSilentRefresh(reason){
+    if (!pendingSilentRefresh && !silentRefreshQueue.length) return;
+    clearTimeout(silentRefreshTimer); silentRefreshTimer = null;
+    pendingSilentRefresh = null; silentRefreshQueue = [];
+    if (reason) log("Perpanjangan otomatis dibatalkan: " + reason + ".", "info");
+  }
+  function markManualLogin(){
+    manualLoginUntil = Date.now() + MANUAL_LOGIN_GUARD_MS;
+    abandonSilentRefresh("kamu memulai login manual");
+  }
+
+  function maybeStartSilentRefreshes(){
+    if (silentRefreshDisabled) return;
+    if (pendingRelogin || pendingSilentRefresh || pendingNextRelogin) return;   // jangan tabrakan dgn proses login lain
+    var now = Date.now();
+    if (now < manualLoginUntil) return;                                        // user sedang/baru login manual
+    var candidates = accounts.filter(function(a){
+      if ((silentRefreshFails[a.id] || 0) >= SILENT_REFRESH_MAX_FAILS) return false;
+      var rem = tokenRemainingMs(a);
+      if (rem > SILENT_REFRESH_MARGIN_MS) return false;
+      var last = silentRefreshLastTry[a.id] || 0;
+      if (now - last < SILENT_REFRESH_RETRY_MS) return false;
+      return true;
+    });
+    if (!candidates.length) return;
+    silentRefreshQueue = candidates.slice(1);
+    startSilentRefresh(candidates[0]);
+  }
+
+  function startSilentRefresh(acc){
+    var tc = tokenClients[acc.clientId];
+    if (!tc){ setupTokenClientIfPossible(); tc = tokenClients[acc.clientId]; }
+    if (!tc){ return; }
+    pendingSilentRefresh = acc;
+    silentRefreshLastTry[acc.id] = Date.now();
+    clearTimeout(silentRefreshTimer);
+    silentRefreshTimer = setTimeout(function(){
+      if (pendingSilentRefresh === acc){
+        log("Perpanjangan otomatis " + (acc.email || "akun") + " tidak ada respons dalam " + (SILENT_REFRESH_TIMEOUT_MS / 1000) + " detik, dibatalkan.", "info");
+        finishSilentRefresh(false, "timeout");
+      }
+    }, SILENT_REFRESH_TIMEOUT_MS);
+    // Catatan: token client GIS hanya mendukung dialog/popup (bukan iframe tersembunyi), jadi "diam-diam" berarti popup
+    // singkat tanpa layar pilih akun. Kalau browser menolak popup yang tidak dipicu klik, kita berhenti (lihat finishSilentRefresh).
+    log("Mencoba perpanjang token otomatis untuk " + (acc.email || acc.channelTitle || "akun") + "...", "info");
+    try { tc.requestAccessToken({ prompt: "", login_hint: acc.email || undefined }); }
+    catch (e){ log("Gagal memulai perpanjangan otomatis: " + e, "info"); finishSilentRefresh(false, "exception"); }
+  }
+
+  function handleSilentRefreshToken(cid, token, resp){
+    var acc = pendingSilentRefresh;
+    if (!acc) return;
+    fetch("https://www.googleapis.com/oauth2/v3/userinfo", { headers: { Authorization: "Bearer " + token } })
+      .then(function(r){ if (!r.ok) throw new Error("userinfo gagal (" + r.status + ")"); return r.json(); })
+      .then(function(d){
+        if (acc.email && d.email && d.email.toLowerCase() !== acc.email.toLowerCase()){
+          // Jarang terjadi (mis. beberapa sesi Google aktif): token ini untuk akun lain, jangan ditimpa.
+          log("Perpanjangan otomatis diabaikan: token yang didapat untuk akun lain (" + d.email + "), bukan " + acc.email + ".", "info");
+          finishSilentRefresh(false, "akun-lain");
+          return;
+        }
+        var stillPending = (pendingSilentRefresh === acc);
+        acc.token = token;
+        acc.loginAt = Date.now();
+        acc.tokenLifeMs = tokenLifeFromResponse(resp);
+        acc.expired = false;
+        silentRefreshFails[acc.id] = 0;
+        log("✓ Token " + (acc.email || acc.channelTitle || "akun") + " berhasil diperpanjang otomatis, berlaku sekitar " + Math.round(tokenRemainingMs(acc) / 60000) + " menit lagi.", "success");
+        if (stillPending) finishSilentRefresh(true);
+        else { persistAccounts(); renderAccountsList(); updateGeneralUi(); updateReloginAllBtn(); }
+      })
+      .catch(function(e){ log("Perpanjangan otomatis gagal saat verifikasi akun: " + e, "info"); finishSilentRefresh(false, "verifikasi"); });
+  }
+
+  function finishSilentRefresh(success, why){
+    var acc = pendingSilentRefresh;
+    clearTimeout(silentRefreshTimer); silentRefreshTimer = null;
+    pendingSilentRefresh = null;
+    if (acc){
+      if (success) silentRefreshFails[acc.id] = 0;
+      else silentRefreshFails[acc.id] = (silentRefreshFails[acc.id] || 0) + 1;
+    }
+    if (!success){
+      if (why === "popup_failed_to_open"){
+        // Browser menolak popup yang tidak dipicu klik: percobaan otomatis berikutnya pasti gagal juga. Matikan untuk sesi ini
+        // (tanpa ini, tiap akun dicoba tiap 4 menit selamanya dan log 300 baris terisi sampah).
+        silentRefreshDisabled = true; silentRefreshQueue = [];
+        log("Perpanjangan otomatis dimatikan untuk sesi ini: browser memblokir popup yang tidak dipicu klik (wajar). Pakai tombol 'Login ulang' saat token habis.", "info");
+      } else if (acc && silentRefreshFails[acc.id] >= SILENT_REFRESH_MAX_FAILS){
+        log("Perpanjangan otomatis " + (acc.email || "akun") + " gagal " + silentRefreshFails[acc.id] + "x (" + (why || "tidak diketahui") + "), dihentikan untuk akun ini. Pakai 'Login ulang'.", "info");
+      }
+    }
+    persistAccounts();
+    renderAccountsList();
+    updateGeneralUi();
+    updateReloginAllBtn();
+    if (silentRefreshQueue.length && !silentRefreshDisabled){
+      var next = silentRefreshQueue.shift();
+      startSilentRefresh(next);
+    }
+  }
+
+  // ================= AUTO SAVE (localStorage) =================
+  // Yang disimpan: log, daftar event + status, progress bulk, limit/akun, DAFTAR akun (email/channel/clientId saja).
+  // TIDAK disimpan: token akses Google (sengaja, demi keamanan) -> setelah refresh, akun tetap ada di list tapi perlu "Login ulang" (bukan Tambah Akun dari nol).
+  var LS_LOG = "yt_csv_v4_log";
+  var LS_STATE = "yt_csv_v4_state";
+  var LOG_MAX = 300;
+  var logBuffer = [];          // [{t, type, text}]
+  var lastRun = null;          // ringkasan bulk upload terakhir
+  var lsWarned = false;
+
+  function lsSet(key, val){
+    try { localStorage.setItem(key, val); return true; }
+    catch (e){
+      if (!lsWarned){ lsWarned = true; try { console.warn("Auto save gagal:", e); } catch (x){} }
+      return false;
+    }
+  }
+  function saveLog(){ lsSet(LS_LOG, JSON.stringify(logBuffer)); }
+  var saveStateTimer = null;
+  function saveState(){
+    // ditunda 250ms supaya beberapa perubahan beruntun cuma menulis sekali
+    clearTimeout(saveStateTimer);
+    saveStateTimer = setTimeout(saveStateNow, 250);
+  }
+  function saveStateNow(){
+    lsSet(LS_STATE, JSON.stringify({
+      savedAt: Date.now(),
+      limitPerAccount: limitPerAccount,
+      events: events,
+      selectedIds: selectedIds,
+      lastRun: lastRun
+    }));
+  }
+  function loadState(){
+    try { var raw = localStorage.getItem(LS_STATE); return raw ? JSON.parse(raw) : null; }
+    catch (e){ return null; }
+  }
+  function loadLogBuffer(){
+    try { var raw = localStorage.getItem(LS_LOG); var a = raw ? JSON.parse(raw) : []; return Array.isArray(a) ? a : []; }
+    catch (e){ return []; }
+  }
+  function fmtTime(ts){ return new Date(ts).toLocaleTimeString("id-ID"); }
+  function fmtDateTime(ts){ return new Date(ts).toLocaleString("id-ID"); }
+
+  // WIB -> UTC ISO string. null kalau invalid.
+  // tz opsional (mis. "-05:00"); kosong = WIB (+07:00)
+  function wibToUtcIso(date, time, tz){
+    try {
+      var iso = date + "T" + time + ":00" + (tz || "+07:00");
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    } catch (e) { return null; }
+  }
+  // Jadwal sebuah baris -> UTC ISO, memakai zona waktu asli baris (format tanpa header) atau WIB (format lama).
+  function rowUtcIso(row){ return wibToUtcIso(row.date, row.time, row._tz); }
+  function timeLabel(row){ return row._tzLabel || "WIB"; }
+  function isPastUtc(isoUtc){
+    return new Date(isoUtc).getTime() <= Date.now();
+  }
+
+  // ================= CSV PARSING (manual, TIDAK PERNAH pakai SheetJS untuk .csv) =================
+  // Parser CSV state-machine: mendukung koma & newline di dalam field bertanda kutip, dan BOM UTF-8.
+  function parseCsvRecords(text){
+    text = String(text).replace(/^\uFEFF/, "");
+    var records = [], row = [], cur = "", inQuotes = false;
+    for (var i = 0; i < text.length; i++){
+      var ch = text[i];
+      if (inQuotes){
+        if (ch === '"'){
+          if (text[i+1] === '"'){ cur += '"'; i++; }
+          else inQuotes = false;
+        } else cur += ch;
+      } else if (ch === '"'){
+        inQuotes = true;
+      } else if (ch === ","){
+        row.push(cur.trim()); cur = "";
+      } else if (ch === "\n" || ch === "\r"){
+        if (ch === "\r" && text[i+1] === "\n") i++;
+        row.push(cur.trim()); cur = "";
+        records.push(row); row = [];
+      } else cur += ch;
+    }
+    row.push(cur.trim());
+    records.push(row);
+    return records.filter(function(r){
+      return r.some(function(c){ return c.length > 0; });
+    });
+  }
+  function parseCsvText(text){
+    var records = parseCsvRecords(text);
+    if (records.length === 0) return [];
+    var headers = records[0].map(function(h){ return h.toLowerCase(); });
+    var rows = [];
+    for (var i = 1; i < records.length; i++){
+      var cells = records[i];
+      var obj = {};
+      headers.forEach(function(h, idx){ obj[h] = cells[idx] !== undefined ? cells[idx] : ""; });
+      rows.push(obj);
+    }
+    return rows;
+  }
+
+  // ================= FORMAT BARU TANPA HEADER =================
+  // Tiap baris = 1 event. Kolom pertama = judul. Kolom berlabel "Date:" dan "Time:" = jadwal (zona waktu bebas, mis. CDT/PDT),
+  // dibaca APA ADANYA (tanggal & jam tidak diubah), zona waktunya disimpan di baris (_tz/_tzLabel) untuk konversi ke UTC saat kirim ke YouTube.
+  // Kolom berawalan "#" = hashtag (masuk deskripsi + tags). Kolom lain yang terisi = deskripsi (urut sesuai kolom).
+  var TZ_FIXED = {
+    UTC: 0, GMT: 0, Z: 0, WIB: 7, WITA: 8, WIT: 9,
+    EST: -5, EDT: -4, CST: -6, CDT: -5, MST: -7, MDT: -6, PST: -8, PDT: -7, AKST: -9, AKDT: -8, HST: -10
+  };
+  var TZ_US_GENERIC = { ET: [-5, -4], CT: [-6, -5], MT: [-7, -6], PT: [-8, -7] };   // [standar, DST]
+  var MONTHS = { jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, oct:10, nov:11, dec:12 };
+
+  function usDstOn(y, m, d){
+    function nthSunday(mi, n){
+      var first = new Date(Date.UTC(y, mi, 1)).getUTCDay();
+      return 1 + (7 - first) % 7 + 7 * (n - 1);
+    }
+    var t = Date.UTC(y, m - 1, d);
+    return t >= Date.UTC(y, 2, nthSunday(2, 2)) && t < Date.UTC(y, 10, nthSunday(10, 1));
+  }
+  function tzOffsetHours(abbr, y, m, d){
+    var a = String(abbr || "").toUpperCase();
+    if (TZ_FIXED.hasOwnProperty(a)) return TZ_FIXED[a];
+    if (TZ_US_GENERIC.hasOwnProperty(a)) return TZ_US_GENERIC[a][usDstOn(y, m, d) ? 1 : 0];
+    return null;
+  }
+  function cellLabelValue(cell, label){
+    // "🗓️ Date: Saturday, Sep 19, 2026" -> "Saturday, Sep 19, 2026"; label hanya dikenali di awal sel (setelah emoji/spasi)
+    var re = new RegExp("^[^A-Za-z0-9#]*" + label + "\\s*:\\s*(.*)$", "i");
+    var m = String(cell).match(re);
+    return m ? m[1].trim() : null;
+  }
+  function pad2(n){ return (n < 10 ? "0" : "") + n; }
+
+  // Kembalikan { date:"YYYY-MM-DD", time:"HH:mm" (24 jam, sesuai file), tz:"-05:00", label:"CDT" }, atau { error:"..." }
+  function parseSchedule(dateText, timeText){
+    var dm = String(dateText || "").match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+(\d{1,2})(?:st|nd|rd|th)?,?\s+(\d{4})/i);
+    var Y, M, D;
+    if (dm){ M = MONTHS[dm[1].toLowerCase()]; D = parseInt(dm[2], 10); Y = parseInt(dm[3], 10); }
+    else {
+      var im = String(dateText || "").match(/(\d{4})-(\d{2})-(\d{2})/);
+      if (!im) return { error: "tanggal tidak terbaca (\"" + dateText + "\")" };
+      Y = parseInt(im[1], 10); M = parseInt(im[2], 10); D = parseInt(im[3], 10);
+    }
+    var tt = String(timeText || "");
+    var h, mi, rest;
+    var t12 = tt.match(/(\d{1,2})(?::(\d{2}))?\s*([ap])\.?m\.?\s*([A-Za-z]{1,5})?/i);
+    if (t12){
+      h = parseInt(t12[1], 10) % 12 + (t12[3].toLowerCase() === "p" ? 12 : 0);
+      mi = t12[2] ? parseInt(t12[2], 10) : 0;
+      rest = t12[4];
+    } else {
+      var t24 = tt.match(/(\d{1,2}):(\d{2})\s*([A-Za-z]{1,5})?/);
+      if (!t24) return { error: "jam tidak terbaca (\"" + timeText + "\")" };
+      h = parseInt(t24[1], 10); mi = parseInt(t24[2], 10); rest = t24[3];
+    }
+    if (h > 23 || mi > 59) return { error: "jam tidak valid (\"" + timeText + "\")" };
+    if (!rest) return { error: "zona waktu tidak ada di \"" + timeText + "\" (mis. CDT, PDT, EST)" };
+    var off = tzOffsetHours(rest, Y, M, D);
+    if (off === null) return { error: "zona waktu \"" + rest + "\" belum dikenali" };
+    return {
+      date: Y + "-" + pad2(M) + "-" + pad2(D),
+      time: pad2(h) + ":" + pad2(mi),
+      tz: (off < 0 ? "-" : "+") + pad2(Math.abs(off)) + ":00",
+      label: String(rest).toUpperCase()
+    };
+  }
+
+  function looksLikeHeaderRow(cells){
+    var low = (cells || []).map(function(c){ return String(c).trim().toLowerCase(); });
+    return low.indexOf("title") !== -1 && low.indexOf("date") !== -1 && low.indexOf("time") !== -1;
+  }
+  function isBlankRow(cells){
+    return !(cells || []).some(function(c){ return String(c).trim() !== ""; });
+  }
+
+  // arrays = array of array (sel per baris). Hasil: { rows:[...objek standar...], problems:[...] }
+  function parseHeaderlessRows(arrays){
+    var rows = [], problems = [];
+    var privacy = (el.newFormatPrivacy && el.newFormatPrivacy.value) || "private";
+    arrays.forEach(function(cells, idx){
+      if (isBlankRow(cells)) return;
+      var n = idx + 1;
+      var vals = cells.map(function(c){ return String(c == null ? "" : c).trim(); });
+      var title = vals[0] || "";
+      var dateText = null, timeText = null, hashtags = [], descLines = [];
+      vals.forEach(function(v, ci){
+        if (!v || ci === 0) return;
+        if (v === title) return;                        // kolom judul yang diulang
+        var d = cellLabelValue(v, "Date");
+        var t = cellLabelValue(v, "Time");
+        if (d !== null && dateText === null){ dateText = d; return; }
+        if (t !== null && timeText === null){ timeText = t; return; }
+        if (v.charAt(0) === "#"){ hashtags.push(v.split(/\s+/)[0]); return; }
+        descLines.push(v);
+      });
+      var row = {
+        _id: genId(),
+        title: title,
+        date: "", time: "",
+        description: descLines.join("\n") + (hashtags.length ? "\n\n" + hashtags.join(" ") : ""),
+        privacy: privacy,
+        tags: hashtags.map(function(h){ return h.replace(/^#+/, ""); }).filter(Boolean).join(","),
+        status: "ready", message: "", videoId: null, _pastDate: false, _invalid: false
+      };
+      if (dateText === null || timeText === null){
+        problems.push("Baris " + n + ": kolom \"Date:\" atau \"Time:\" tidak ditemukan");
+      } else {
+        var c = parseSchedule(dateText, timeText);
+        if (c.error) problems.push("Baris " + n + ": " + c.error);
+        else { row.date = c.date; row.time = c.time; row._tz = c.tz; row._tzLabel = c.label; }
+      }
+      rows.push(row);
+    });
+    return { rows: rows, problems: problems };
+  }
+
+  function loadSheetJs(cb){
+    if (window.XLSX) { cb(true); return; }
+    var existing = document.querySelector('script[data-xlsx]');
+    if (existing){
+      var iv = setInterval(function(){ if (window.XLSX){ clearInterval(iv); cb(true); } }, 300);
+      setTimeout(function(){ clearInterval(iv); cb(!!window.XLSX); }, 4000);
+      return;
+    }
+    var s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js";
+    s.setAttribute("data-xlsx", "true");
+    s.onload = function(){ log("SheetJS loaded", "success"); cb(true); };
+    s.onerror = function(){ log("Gagal load SheetJS", "error"); cb(false); };
+    document.head.appendChild(s);
+  }
+
+  // Jaga-jaga kalau Excel masih mengirim tanggal/jam sebagai angka serial atau objek Date.
+  function normalizeExcelCell(key, val){
+    var k = String(key).toLowerCase();
+    function pad(n){ return (n < 10 ? "0" : "") + n; }
+    if (val instanceof Date && !isNaN(val.getTime())){
+      if (k === "date") return val.getFullYear() + "-" + pad(val.getMonth()+1) + "-" + pad(val.getDate());
+      if (k === "time") return pad(val.getHours()) + ":" + pad(val.getMinutes());
+    }
+    if (typeof val === "number"){
+      if (k === "time" && val >= 0 && val < 1){
+        var mins = Math.round(val * 24 * 60);
+        return pad(Math.floor(mins / 60) % 24) + ":" + pad(mins % 60);
+      }
+      if (k === "date" && val > 20000){
+        var d = new Date(Math.round((val - 25569) * 86400 * 1000));
+        return d.getUTCFullYear() + "-" + pad(d.getUTCMonth()+1) + "-" + pad(d.getUTCDate());
+      }
+    }
+    return val;
+  }
+
+  function handleFiles(fileList){
+    if (!fileList || fileList.length === 0) return;
+    var file = fileList[0];
+    var ext = (file.name.split(".").pop() || "").toLowerCase();
+    el.warnBox.innerHTML = "";
+    if (ext !== "csv" && ext !== "xlsx" && ext !== "xls"){
+      showToast("Format harus .csv / .xlsx / .xls");
+      return;
+    }
+    if (ext === "csv"){
+      // .csv SELALU pakai parser manual di atas, TIDAK PERNAH lewat SheetJS,
+      // supaya kolom tanggal (2026-09-25) tidak "ditebak" jadi serial number Excel (misal 46290.29).
+      var reader = new FileReader();
+      reader.onload = function(e){
+        var records = parseCsvRecords(e.target.result);
+        if (records.length && !looksLikeHeaderRow(records[0])){
+          processHeaderless(records, file.name);
+          return;
+        }
+        var rows = parseCsvText(e.target.result);
+        processRows(rows, file.name);
+      };
+      reader.readAsText(file);
+    } else {
+      loadSheetJs(function(ok){
+        if (!ok || !window.XLSX){ showToast("SheetJS belum siap, coba lagi"); log("SheetJS belum siap, cek internet", "error"); return; }
+        var reader = new FileReader();
+        reader.onload = function(e){
+          var data = new Uint8Array(e.target.result);
+          var wb = window.XLSX.read(data, { type: "array", cellDates: true });
+          var sheet = wb.Sheets[wb.SheetNames[0]];
+          var aoa = window.XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "", raw: false, blankrows: false });
+          if (aoa.length && !looksLikeHeaderRow(aoa[0])){
+            processHeaderless(aoa, file.name);
+            return;
+          }
+          var rows = window.XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false, dateNF: "yyyy-mm-dd" });
+          rows = rows.map(function(r){
+            var o = {};
+            Object.keys(r).forEach(function(k){ o[k] = normalizeExcelCell(k, r[k]); });
+            return o;
+          });
+          processRows(rows, file.name);
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    }
+  }
+
+  function processHeaderless(arrays, fileName){
+    var res = parseHeaderlessRows(arrays);
+    if (res.rows.length === 0){
+      el.warnBox.innerHTML = '<div class="warn-box"><div class="warn-line"><span>&#9888;</span><span>File kosong atau tidak ada baris yang terbaca</span></div></div>';
+      return;
+    }
+    log("Format tanpa header terdeteksi (" + fileName + "): jam dibaca apa adanya sesuai zona waktu di file", "success");
+    finishParse(res.rows, res.problems, fileName, true);
+  }
+
+  function processRows(rows, fileName){
+    var problems = [];
+    if (rows.length === 0){
+      el.warnBox.innerHTML = '<div class="warn-box"><div class="warn-line"><span>&#9888;</span><span>File kosong atau header tidak terbaca</span></div></div>';
+      return;
+    }
+    var headerKeys = Object.keys(rows[0] || {}).map(function(h){ return h.toLowerCase(); });
+    var required = ["title", "date", "time", "description", "privacy", "tags"];
+    var missing = required.filter(function(h){ return headerKeys.indexOf(h) === -1; });
+    if (missing.length > 0) problems.push("Header wajib hilang: " + missing.join(", ") + " - di file " + fileName);
+
+    var parsed = rows.map(function(raw){
+      var lower = {};
+      Object.keys(raw).forEach(function(k){ lower[k.toLowerCase()] = raw[k]; });
+      var date = String(lower.date || "").trim().slice(0, 10);
+      var time = String(lower.time || "").trim().slice(0, 5);
+      var privacyRaw = String(lower.privacy || "private").toLowerCase();
+      var privacy = ["public", "private", "unlisted"].indexOf(privacyRaw) !== -1 ? privacyRaw : "private";
+      return {
+        _id: genId(),
+        title: String(lower.title || "").trim(),
+        date: date,
+        time: time,
+        description: String(lower.description || "").trim(),
+        privacy: privacy,
+        tags: String(lower.tags || "").trim(),
+        status: "ready",
+        message: "",
+        videoId: null,
+        _pastDate: false,
+        _invalid: false
+      };
+    });
+
+    finishParse(parsed, problems, fileName, false);
+  }
+
+  function finishParse(parsed, problems, fileName, headerless){
+    parsed.forEach(function(row, idx){
+      var bad = false;
+      if (!row.title){ problems.push("Baris " + (idx+1) + ": title kosong"); bad = true; }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(row.date)){ if (!headerless) problems.push("Baris " + (idx+1) + ": date harus YYYY-MM-DD (dapat " + row.date + ")"); bad = true; }
+      if (!/^\d{2}:\d{2}$/.test(row.time)){ if (!headerless) problems.push("Baris " + (idx+1) + ": time harus HH:mm (dapat " + row.time + ")"); bad = true; }
+      var utc = bad ? null : rowUtcIso(row);
+      if (!bad && !utc){ problems.push("Baris " + (idx+1) + ": gagal convert WIB ke UTC"); bad = true; }
+      else if (utc && isPastUtc(utc)) row._pastDate = true;
+      if (row.title.length > 100){ problems.push("Baris " + (idx+1) + ": title " + row.title.length + " karakter, batas YouTube 100"); bad = true; }
+      row._invalid = bad;
+    });
+
+    events = parsed;
+    lastRun = null;
+    selectedIds = {};
+    events.forEach(function(r){ selectedIds[r._id] = !r._invalid; }); // baris invalid tidak ikut terpilih otomatis
+
+    renderWarnings(problems);
+    renderPreviewTable();
+    renderEventsTable();
+    renderAssetPreview();
+
+    log("File " + fileName + " diparse: " + parsed.length + " event", "success");
+    if (problems.length > 0) log("Ada " + problems.length + " warning", "error");
+    var pastCount = parsed.filter(function(r){ return r._pastDate; }).length;
+    if (pastCount > 0) log(pastCount + " baris tanggalnya sudah lewat, akan di-skip otomatis saat upload.", "error");
+  }
+
+  function renderWarnings(problems){
+    if (!problems || problems.length === 0){ el.warnBox.innerHTML = ""; return; }
+    var html = '<div class="warn-box">';
+    problems.forEach(function(w){
+      html += '<div class="warn-line"><span>&#9888;</span><span>' + escapeHtml(w) + '</span></div>';
+    });
+    html += '</div>';
+    el.warnBox.innerHTML = html;
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+    });
+  }
+
+  function renderPreviewTable(){
+    if (events.length === 0){ el.previewTableWrap.style.display = "none"; return; }
+    el.previewTableWrap.style.display = "block";
+    var rowsHtml = "";
+    events.slice(0, 20).forEach(function(r){
+      rowsHtml += '<tr>' +
+        '<td style="max-width:180px;">' + escapeHtml(r.title) + (r._pastDate ? ' <span style="color:#fca5a5;">(lewat)</span>' : '') + '</td>' +
+        '<td class="mono">' + escapeHtml(r.date) + '</td>' +
+        '<td class="mono">' + escapeHtml(r.time) + (r._tzLabel ? ' ' + escapeHtml(r._tzLabel) : '') + '</td>' +
+        '<td><span class="badge-privacy ' + r.privacy + '">' + r.privacy + '</span></td>' +
+        '<td style="max-width:140px;color:var(--muted);">' + escapeHtml(r.tags) + '</td>' +
+        '</tr>';
+    });
+    el.previewTableBody.innerHTML = rowsHtml;
+  }
+
+  // ================= RENDER TABEL EVENT (SECTION 4) =================
+  function rowsNeedingThumbFix(){
+    // Baris sukses dibuat sebagai jadwal live, tapi thumbnail-nya gagal ke-set (429/403/kuota/dll) -> masih pakai thumbnail default YouTube.
+    return events.filter(function(r){
+      return r.mode === "live" && r.status === "sukses" && r.videoId && r.message && /thumbnail/i.test(r.message);
+    });
+  }
+  function updateFixThumbsBtn(){
+    var n = rowsNeedingThumbFix().length;
+    el.fixThumbsBtn.style.display = n ? "block" : "none";
+    el.fixThumbsBtn.textContent = "Perbaiki Thumbnail Gagal (" + n + ")";
+  }
+
+  function renderEventsTable(){
+    saveState();
+    updateFixThumbsBtn();
+    if (events.length === 0){
+      el.emptyState.style.display = "block";
+      el.eventsArea.style.display = "none";
+      el.eventCountPill.style.display = "none";
+      return;
+    }
+    el.emptyState.style.display = "none";
+    el.eventsArea.style.display = "block";
+    el.eventCountPill.style.display = "inline-block";
+    el.eventCountPill.textContent = events.length + " event";
+
+    var selCount = Object.keys(selectedIds).filter(function(id){ return selectedIds[id]; }).length;
+    el.selectedCountLabel.textContent = selCount + " dipilih";
+    el.selectAllChk.checked = selCount === events.length && events.length > 0;
+
+    var rowsHtml = "";
+    events.forEach(function(r){
+      var utc = rowUtcIso(r);
+      var utcLabel = utc ? utc.slice(0, 16) : "invalid";
+      var checked = selectedIds[r._id] ? "checked" : "";
+
+      var statusHtml = "";
+      if (r.status === "ready") statusHtml = '<span class="status-tag ready">Ready</span>';
+      else if (r.status === "loading") statusHtml = '<span class="status-tag loading">Proses</span>';
+      else if (r.status === "skip") statusHtml = '<span class="status-tag skip">Skip (lewat)</span>';
+      else if (r.status === "sukses") statusHtml = '<div><span class="status-tag sukses">Sukses</span>' + (r.videoId ? '<div class="mono" style="font-size:10px;color:var(--muted);margin-top:3px;">' + escapeHtml(r.videoId) + '</div>' : '') + (r.mode === "live" ? '<div style="font-size:10px;color:#93c5fd;margin-top:2px;">jadwal live' + (r.message && /tapi:/.test(r.message) ? ' (<span style="color:#fbbf24;">' + escapeHtml(r.message.replace("Jadwal live dibuat, tapi: ", "")) + '</span>)' : '') + '</div>' : '') + (r.uploadedVia ? '<div style="font-size:10px;color:var(--muted);margin-top:2px;">via ' + escapeHtml(r.uploadedVia) + '</div>' : '') + '</div>';
+      else if (r.status === "gagal") statusHtml = '<div><span class="status-tag gagal">Gagal</span><div style="font-size:10px;color:#fca5a5;max-width:180px;margin-top:3px;">' + escapeHtml(r.message || "") + '</div></div>';
+
+      rowsHtml += '<tr>' +
+        '<td>' +
+          '<label style="display:flex;gap:8px;align-items:flex-start;cursor:pointer;">' +
+            '<input type="checkbox" class="row-chk" data-id="' + r._id + '" ' + checked + ' style="margin-top:3px;">' +
+            '<span>' +
+              '<div style="font-weight:500;">' + escapeHtml(r.title || "(tanpa judul)") + (r._invalid ? ' <span style="color:#fca5a5;font-size:10px;">(data tidak valid)</span>' : '') + '</div>' +
+              '<div class="mono" style="font-size:11px;color:var(--muted);margin-top:2px;">' + escapeHtml(r.date) + ' &bull; ' + escapeHtml(r.time) + ' ' + escapeHtml(timeLabel(r)) + ' &bull; ' + utcLabel + ' UTC &bull; ' + (appMode === "live" ? 'jadwal live' : 'auto-publish') + '</div>' +
+              '<div style="font-size:11px;color:var(--muted);margin-top:2px;">' + escapeHtml(r.description) + '</div>' +
+            '</span>' +
+          '</label>' +
+        '</td>' +
+        '<td><span class="badge-privacy ' + r.privacy + '">' + r.privacy + '</span></td>' +
+        '<td>' + statusHtml + '</td>' +
+        '</tr>';
+    });
+    el.eventsTableBody.innerHTML = rowsHtml;
+
+    // attach checkbox listeners
+    Array.prototype.forEach.call(document.querySelectorAll(".row-chk"), function(chk){
+      chk.addEventListener("change", function(){
+        selectedIds[this.getAttribute("data-id")] = this.checked;
+        saveState();
+        var selCount2 = Object.keys(selectedIds).filter(function(id){ return selectedIds[id]; }).length;
+        el.selectedCountLabel.textContent = selCount2 + " dipilih";
+        el.selectAllChk.checked = selCount2 === events.length;
+        el.uploadAllBtn.disabled = running || selCount2 === 0 || accounts.length === 0;
+      });
+    });
+
+    updateUploadBtnState();
+  }
+
+  function updateUploadBtnState(){
+    var selCount = Object.keys(selectedIds).filter(function(id){ return selectedIds[id]; }).length;
+    el.uploadAllBtn.disabled = running || selCount === 0 || accounts.length === 0;
+    el.uploadAllBtn.textContent = running
+      ? (appMode === "live" ? "Membuat jadwal live..." : "Mengupload...")
+      : (appMode === "live" ? ("BUAT " + selCount + " JADWAL LIVE DI YOUTUBE") : ("UPLOAD " + selCount + " EVENT KE YOUTUBE"));
+  }
+
+  // ================= LOGIN GOOGLE MULTI-AKUN (GIS) =================
+  function updateGeneralUi(){
+    el.pillClientId.textContent = "ClientID: " + (clientIds.length ? clientIds.length + " tersimpan" : "Belum");
+    el.pillClientId.className = "pill" + (clientIds.length ? " ok" : "");
+
+    el.addAccountBtn.disabled = !gsiReady || clientIds.length === 0;
+    el.addAccountClientSelect.disabled = clientIds.length === 0;
+
+    var activeCount = accounts.length;
+    if (activeCount > 0){
+      el.userChip.innerHTML = '<span class="dot"></span>&nbsp;' + activeCount + ' Akun';
+    } else {
+      el.userChip.innerHTML = '<span class="dot off"></span>&nbsp;0 Akun';
+    }
+
+    renderAccountsList();
+    updateUploadBtnState();
+  }
+
+  function renderAccountsList(){
+    if (accounts.length === 0){
+      el.accountsList.innerHTML = '<p style="font-size:12px;color:var(--muted);margin:0;">Belum ada akun ditambahkan.</p>';
+      updateReloginAllBtn();
+      return;
+    }
+    var html = "";
+    accounts.forEach(function(acc, idx){
+      var isActive = idx === activeAccountIndex && running;
+      var remMs = tokenRemainingMs(acc);
+      var tokenDead = acc.expired || remMs <= 0;
+      var tokenWarn = !tokenDead && remMs <= TOKEN_WARN_MS;
+      var isExhausted = acc.usedCount >= limitPerAccount || !!acc.clientQuotaFull;
+      var cls = "acc-card" + (isActive ? " active" : "") + (isExhausted ? " exhausted" : "");
+      var avatarHtml = acc.picture
+        ? '<img src="' + escapeHtml(acc.picture) + '" alt="">'
+        : (acc.email ? acc.email.charAt(0).toUpperCase() : "?");
+      html += '<div class="' + cls + '">' +
+        '<div class="acc-avatar">' + avatarHtml + '</div>' +
+        '<div class="acc-info">' +
+          '<div class="acc-name">' + escapeHtml(acc.channelTitle || acc.name || acc.email || ("Akun " + (idx+1))) + '</div>' +
+          '<div class="acc-sub">' + escapeHtml(acc.email || "") + ' &bull; Client ' + escapeHtml(shortClientId(acc.clientId)) + '</div>' +
+        '</div>' +
+        (isActive ? '<span class="acc-badge-active">AKTIF</span>' : '') +
+        '<div class="acc-quota">' + acc.usedCount + '/' + limitPerAccount + '<br><b>' + (tokenDead ? "Token habis" : (appMode === "live" && acc.liveBlocked ? "Live belum aktif" : acc.clientQuotaFull ? "Kuota Client habis" : (isExhausted ? "Habis" : "Sisa " + (limitPerAccount - acc.usedCount)))) + (tokenWarn ? '<br><span style="color:#fbbf24;">token ' + fmtRemaining(remMs) + '</span>' : (!tokenDead && acc.loginAt ? '<br><span style="opacity:.7;">token ' + fmtRemaining(remMs) + '</span>' : '')) + '</b></div>' +
+        ((tokenDead || tokenWarn) && !running ? '<button class="acc-relogin' + (tokenDead ? ' urgent' : '') + '" data-relogin="' + idx + '" title="Login ulang akun ini">Login ulang</button>' : '') +
+        '<button class="acc-remove" data-idx="' + idx + '" title="Hapus akun ini">&times;</button>' +
+        '</div>';
+    });
+    el.accountsList.innerHTML = html;
+    Array.prototype.forEach.call(el.accountsList.querySelectorAll(".acc-relogin"), function(btn){
+      btn.addEventListener("click", function(){
+        var i = parseInt(this.getAttribute("data-relogin"), 10);
+        if (accounts[i]) requestRelogin(accounts[i]);
+      });
+    });
+    updateReloginAllBtn();
+
+    Array.prototype.forEach.call(el.accountsList.querySelectorAll(".acc-remove"), function(btn){
+      btn.addEventListener("click", function(){
+        var idx = parseInt(this.getAttribute("data-idx"), 10);
+        removeAccount(idx);
+      });
+    });
+  }
+
+  function removeAccount(idx){
+    if (running){ showToast("Tidak bisa hapus akun saat sedang upload"); return; }
+    var acc = accounts[idx];
+    if (acc && acc.token && window.google){
+      try { window.google.accounts.oauth2.revoke(acc.token, function(){}); } catch (e){}
+    }
+    accounts.splice(idx, 1);
+    if (activeAccountIndex >= accounts.length) activeAccountIndex = Math.max(0, accounts.length - 1);
+    persistAccounts();
+    log("Akun dihapus dari daftar.", "info");
+    updateGeneralUi();
+  }
+
+  function persistAccounts(){
+    // Cuma simpan info ringan (bukan token, karena token access sengaja tidak disimpan permanen demi keamanan sesi).
+    // Dipakai buat memulihkan DAFTAR akun (email/channel) setelah refresh, supaya user tinggal "Login ulang"
+    // per akun (lewat login_hint) alih-alih "Tambah Akun" dari nol dan harus ingat2 100 email satu-satu.
+    try {
+      var lite = accounts.map(function(a){ return { email: a.email, name: a.name, channelTitle: a.channelTitle, clientId: a.clientId, usedCount: a.usedCount || 0, usedDay: a.usedDay || pacificDateKey() }; });
+      localStorage.setItem("yt_csv_accounts_meta", JSON.stringify(lite));
+    } catch (e){}
+  }
+
+  function initGsi(){
+    log("Tools siap. Mode: upload video biasa terjadwal (bukan live streaming) — tidak butuh channel live-streaming enabled.");
+    var checkInterval = setInterval(function(){
+      if (window.google && window.google.accounts){
+        clearInterval(checkInterval);
+        gsiReady = true;
+        el.pillGsi.textContent = "GSI: Ready";
+        el.pillGsi.className = "pill ok";
+        log("GSI Google Identity loaded", "success");
+        setupTokenClientIfPossible();
+        updateGeneralUi();
+      }
+    }, 200);
+    setTimeout(function(){
+      if (!gsiReady){
+        clearInterval(checkInterval);
+        el.pillGsi.textContent = "GSI: Gagal load";
+        log("Gagal load GSI, cek koneksi internet", "error");
+      }
+    }, 8000);
+  }
+
+  function setupTokenClientIfPossible(){
+    if (!gsiReady || !window.google) return;
+    clientIds.forEach(function(cid){
+      if (tokenClients[cid]) return;
+      try {
+        tokenClients[cid] = google.accounts.oauth2.initTokenClient({
+          client_id: cid,
+          scope: "https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+          callback: function(resp){
+            if (resp.access_token){
+              // Hasil dari percobaan perpanjangan otomatis (silent, prompt:"")?
+              if (pendingSilentRefresh && pendingSilentRefresh.clientId === cid){
+                handleSilentRefreshToken(cid, resp.access_token, resp);
+                return;
+              }
+              // Login ulang untuk akun tertentu? (pendingRelogin diisi oleh tombol "Login ulang")
+              if (pendingRelogin && pendingRelogin.clientId === cid){
+                handleReloginToken(cid, resp.access_token, resp);
+                return;
+              }
+              var newAcc = {
+                id: genId(),
+                clientId: cid,
+                token: resp.access_token,
+                loginAt: Date.now(),
+                tokenLifeMs: tokenLifeFromResponse(resp),
+                email: null, name: null, picture: null,
+                channelTitle: null,
+                usedCount: 0
+              };
+              accounts.push(newAcc);
+              log("Akun baru ditambahkan via Client ID " + shortClientId(cid) + ", mengambil info profil & channel...", "success");
+              showToast("Akun berhasil ditambahkan!");
+              fetchProfileFor(newAcc);
+              fetchChannelFor(newAcc);
+              updateGeneralUi();
+            } else if (resp.error){
+              if (pendingSilentRefresh && pendingSilentRefresh.clientId === cid){
+                finishSilentRefresh(false, resp.error);
+                return;
+              }
+              if (pendingRelogin){ log("Login ulang gagal: " + resp.error, "error"); finishRelogin(false); }
+            }
+          },
+          error_callback: function(err){
+            if (pendingSilentRefresh && pendingSilentRefresh.clientId === cid){
+              finishSilentRefresh(false, (err && (err.type || err.message)) || "tidak diketahui");
+              return;
+            }
+            var msg = (err && (err.type || err.message)) || "popup diblokir atau dibatalkan";
+            log("Login gagal (Client ID " + shortClientId(cid) + "): " + msg, "error");
+            showToast("Login gagal, cek popup blocker/AdBlock");
+            if (pendingRelogin){ finishRelogin(false); }
+          }
+        });
+      } catch (e){
+        log("Gagal init GSI untuk Client ID " + shortClientId(cid) + ": " + e, "error");
+      }
+    });
+  }
+
+  function fetchProfileFor(acc){
+    fetch("https://www.googleapis.com/oauth2/v3/userinfo", { headers: { Authorization: "Bearer " + acc.token } })
+      .then(function(r){ if (!r.ok) throw new Error("userinfo gagal"); return r.json(); })
+      .then(function(d){
+        acc.email = d.email; acc.name = d.name; acc.picture = d.picture;
+        // Akun yang sama (email sama) di Client ID yang sama = duplikat, buang yang baru supaya kuota tidak dihitung ganda.
+        var dupIdx = -1;
+        accounts.forEach(function(a, i){ if (a !== acc && a.email && a.email === acc.email && a.clientId === acc.clientId) dupIdx = i; });
+        if (dupIdx !== -1){
+          log("Akun " + acc.email + " sudah ada di Client ID " + shortClientId(acc.clientId) + ". Token lama diganti dengan yang baru (bukan akun ganda).", "info");
+          accounts[dupIdx].token = acc.token;
+          accounts[dupIdx].loginAt = acc.loginAt;
+          accounts[dupIdx].tokenLifeMs = acc.tokenLifeMs;
+          accounts[dupIdx].expired = false;
+          silentRefreshFails[accounts[dupIdx].id] = 0;
+          accounts.splice(accounts.indexOf(acc), 1);
+          showToast("Akun sudah ada, token diperbarui");
+        }
+        persistAccounts();
+        updateGeneralUi();
+        renderAccountsList();
+      })
+      .catch(function(e){ log("Gagal ambil profile akun: " + e, "error"); });
+  }
+
+  function fetchChannelFor(acc){
+    fetch("https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true", { headers: { Authorization: "Bearer " + acc.token } })
+      .then(function(r){
+        if (!r.ok) return r.text().then(function(t){ throw new Error(t); });
+        return r.json();
+      })
+      .then(function(d){
+        if (d.items && d.items.length){
+          acc.channelTitle = d.items[0].snippet.title;
+          log("Channel terdeteksi untuk akun ini: " + acc.channelTitle, "success");
+        } else {
+          acc.channelTitle = null;
+          log("Channel tidak ditemukan untuk salah satu akun. Pastikan akun itu punya channel YouTube.", "error");
+        }
+        persistAccounts();
+        renderAccountsList();
+      })
+      .catch(function(e){ log("Gagal ambil channel akun: " + e, "error"); });
+  }
+
+  function saveClientId(){
+    var v = el.clientIdInput.value.trim();
+    if (!v){ showToast("Client ID tidak boleh kosong"); return; }
+    if (v.indexOf(".apps.googleusercontent.com") === -1){
+      renderWarnings(["Client ID keliatan tidak valid. Harus .apps.googleusercontent.com"]);
+      showToast("Format Client ID tidak valid");
+      return;
+    }
+    if (clientIds.indexOf(v) !== -1){ showToast("Client ID ini sudah ada"); return; }
+    clientIds.push(v);
+    clientId = clientIds[0];
+    persistClientIds();
+    el.clientIdInput.value = "";
+    showToast("Client ID ditambahkan");
+    log("Client ID ditambahkan: " + shortClientId(v) + " (total " + clientIds.length + ")", "info");
+    setupTokenClientIfPossible();
+    renderClientIds();
+    updateGeneralUi();
+  }
+
+  function removeClientId(cid){
+    if (running){ showToast("Tidak bisa hapus Client ID saat sedang upload"); return; }
+    var used = accountsOfClient(cid);
+    if (used.length){
+      if (!window.confirm("Client ID ini dipakai " + used.length + " akun yang sedang login. Akun-akun itu ikut dihapus dari daftar. Lanjut?")) return;
+      accounts = accounts.filter(function(a){ return a.clientId !== cid; });
+      if (activeAccountIndex >= accounts.length) activeAccountIndex = Math.max(0, accounts.length - 1);
+      persistAccounts();
+    }
+    clientIds = clientIds.filter(function(x){ return x !== cid; });
+    delete tokenClients[cid];
+    clientId = clientIds.length ? clientIds[0] : "";
+    persistClientIds();
+    log("Client ID dihapus: " + shortClientId(cid), "info");
+    renderClientIds();
+    renderAccountsList();
+    updateGeneralUi();
+  }
+
+  function renderClientIds(){
+    if (clientIds.length === 0){
+      el.clientIdList.innerHTML = '<p style="font-size:12px;color:var(--muted);margin:0;">Belum ada Client ID. Tempel Client ID lalu klik Tambah.</p>';
+    } else {
+      var html = "";
+      var totLeft = 0;
+      clientIds.forEach(function(cid, i){
+        var n = accountsOfClient(cid).length;
+        var q = getClientQuota(cid);
+        var left = appMode === "live" ? Math.max(0, COST.DAILY_UNITS - q.liveUnits) : Math.max(0, COST.VIDEO_BUCKET - q.videoSlots);
+        totLeft += left;
+        html += '<div class="acc-card" style="padding:9px 12px;">' +
+          '<div class="acc-info"><div class="acc-name mono" style="font-size:12px;">#' + (i+1) + ' &bull; ' + escapeHtml(shortClientId(cid)) + '</div>' +
+          '<div class="acc-sub">' + n + ' akun login &bull; Token: <b>' + fmtNum(left) + '</b></div></div>' +
+          '<button class="acc-remove" data-cid="' + escapeHtml(cid) + '" title="Hapus Client ID ini">&times;</button></div>';
+      });
+      if (clientIds.length > 1){
+        html += '<div class="note-box" style="margin-top:6px;">Total Token: <b>' + fmtNum(totLeft) + '</b></div>';
+      }
+      el.clientIdList.innerHTML = html;
+      Array.prototype.forEach.call(el.clientIdList.querySelectorAll(".acc-remove"), function(btn){
+        btn.addEventListener("click", function(){ removeClientId(this.getAttribute("data-cid")); });
+      });
+    }
+    // isi dropdown pilihan Client ID untuk Tambah Akun
+    var prev = el.addAccountClientSelect.value;
+    var opts = "";
+    clientIds.forEach(function(cid, i){
+      opts += '<option value="' + escapeHtml(cid) + '">Client #' + (i+1) + ' (' + escapeHtml(shortClientId(cid)) + ') - ' + accountsOfClient(cid).length + ' akun</option>';
+    });
+    el.addAccountClientSelect.innerHTML = opts;
+    if (prev && clientIds.indexOf(prev) !== -1) el.addAccountClientSelect.value = prev;
+  }
+
+  // ================= LOGIN ULANG =================
+  function requestRelogin(acc){
+    if (running){ showToast("Tunggu upload selesai dulu, lalu login ulang"); return; }
+    if (pendingRelogin){ showToast("Selesaikan popup login yang sedang terbuka dulu"); return; }
+    var tc = tokenClients[acc.clientId];
+    if (!tc){ setupTokenClientIfPossible(); tc = tokenClients[acc.clientId]; }
+    if (!tc){ showToast("GSI belum siap / Client ID tidak ditemukan"); return; }
+    markManualLogin();   // batalkan perpanjangan otomatis yang tertunda & tahan yang baru
+    pendingRelogin = { acc: acc, clientId: acc.clientId, email: acc.email || null };
+    log("Login ulang: " + (acc.email || acc.channelTitle || "akun") + " (Client ID " + shortClientId(acc.clientId) + "). Pilih akun yang sama di popup.", "info");
+    var opts = { prompt: "select_account" };
+    if (acc.email) opts.login_hint = acc.email;      // popup langsung mengarah ke akun ini
+    try { tc.requestAccessToken(opts); }
+    catch (e){ log("Gagal membuka popup login ulang: " + e, "error"); finishRelogin(false); }
+  }
+
+  function handleReloginToken(cid, token, resp){
+    var target = pendingRelogin.acc;
+    // Cek siapa yang benar-benar login di popup: jangan sampai token akun lain menimpa token akun ini.
+    fetch("https://www.googleapis.com/oauth2/v3/userinfo", { headers: { Authorization: "Bearer " + token } })
+      .then(function(r){ if (!r.ok) throw new Error("userinfo gagal (" + r.status + ")"); return r.json(); })
+      .then(function(d){
+        if (target.email && d.email && d.email.toLowerCase() !== target.email.toLowerCase()){
+          log("Login ulang DITOLAK: kamu memilih " + d.email + " padahal yang diminta " + target.email + ". Token lama tidak diubah. Coba lagi dan pilih akun yang benar.", "error");
+          showToast("Akun yang dipilih salah: " + d.email);
+          finishRelogin(false);
+          return;
+        }
+        target.token = token;
+        target.loginAt = Date.now();
+        target.tokenLifeMs = tokenLifeFromResponse(resp);
+        target.expired = false;
+        silentRefreshFails[target.id] = 0;
+        if (!target.email && d.email){ target.email = d.email; target.name = d.name; target.picture = d.picture; }
+        log("✓ Login ulang berhasil: " + (target.email || "akun") + ". Token baru dipakai sampai sekitar " + Math.round(tokenRemainingMs(target) / 60000) + " menit lagi. Penggunaan " + target.usedCount + "/" + limitPerAccount + " dipertahankan.", "success");
+        showToast("Login ulang berhasil");
+        finishRelogin(true);
+      })
+      .catch(function(e){
+        log("Login ulang gagal memverifikasi akun: " + e, "error");
+        finishRelogin(false);
+      });
+  }
+
+  function finishRelogin(success){
+    pendingRelogin = null;
+    persistAccounts();
+    updateGeneralUi();
+    renderAccountsList();
+    if (success && reloginQueue.length){
+      var next = reloginQueue.shift();
+      log("Login ulang berikutnya (" + (reloginTotal - reloginQueue.length) + "/" + reloginTotal + "): klik OK pada popup.", "info");
+      // Popup harus dipicu oleh klik pengguna agar tidak diblokir browser, jadi antrean menunggu klik berikutnya.
+      pendingNextRelogin = next;
+      showReloginNextPrompt();
+    } else {
+      reloginQueue = []; pendingNextRelogin = null;
+      hideReloginNextPrompt();
+    }
+  }
+
+  // Browser memblokir popup yang tidak dipicu klik. Jadi untuk antrean, tiap akun butuh 1 klik pada tombol "Lanjut".
+  function showReloginNextPrompt(){
+    el.reloginAllBtn.style.display = "inline-block";
+    el.reloginAllBtn.textContent = "Lanjut login: " + (pendingNextRelogin.email || "akun berikutnya") + " (" + (reloginTotal - reloginQueue.length) + "/" + reloginTotal + ")";
+  }
+  function hideReloginNextPrompt(){ updateReloginAllBtn(); }
+
+  function reloginAllExpired(){
+    if (pendingNextRelogin){                       // lanjutan antrean
+      var acc = pendingNextRelogin; pendingNextRelogin = null;
+      requestRelogin(acc);
+      return;
+    }
+    refreshTokenStates();
+    var list = accounts.filter(function(a){ return a.expired || tokenRemainingMs(a) <= TOKEN_WARN_MS; });
+    if (!list.length){ showToast("Tidak ada akun yang perlu login ulang"); updateReloginAllBtn(); return; }
+    reloginQueue = list.slice(1);
+    reloginTotal = list.length;
+    log("Login ulang massal: " + list.length + " akun. Tiap akun perlu 1 klik + pilih akun di popup (batasan browser/Google, tidak bisa otomatis).", "info");
+    requestRelogin(list[0]);
+  }
+
+  function updateReloginAllBtn(){
+    if (pendingNextRelogin) return;      // sedang menampilkan tombol "Lanjut"
+    var need = accounts.filter(function(a){ return isTokenExpired(a) || tokenRemainingMs(a) <= TOKEN_WARN_MS; }).length;
+    if (need > 0){
+      el.reloginAllBtn.style.display = "inline-block";
+      el.reloginAllBtn.textContent = "Login ulang yang habis (" + need + ")";
+    } else {
+      el.reloginAllBtn.style.display = "none";
+    }
+  }
+
+  function doAddAccount(){
+    if (clientIds.length === 0){ showToast("Tambah Client ID dulu bos"); return; }
+    var cid = el.addAccountClientSelect.value || clientIds[0];
+    var tc = tokenClients[cid];
+    if (!tc){ setupTokenClientIfPossible(); tc = tokenClients[cid]; }
+    if (!tc){ showToast("GSI belum siap, cek internet"); return; }
+    markManualLogin();   // batalkan perpanjangan otomatis yang tertunda & tahan yang baru
+    log("Membuka popup login memakai Client ID " + shortClientId(cid) + "...", "info");
+    tc.requestAccessToken({ prompt: "select_account" });
+  }
+
+  function updateLimitPerAccount(){
+    var v = parseInt(el.limitPerAccountInput.value, 10);
+    if (isNaN(v) || v < 1) v = eventsPerDayPerClient(appMode);
+    limitPerAccount = v;
+    renderAccountsList();
+    saveState();
+  }
+
+  // ================= UNDUH LOG =================
+  function downloadLog(){
+    if (logBuffer.length === 0){ showToast("Log masih kosong"); return; }
+    var lines = logBuffer.map(function(l){
+      return "[" + fmtDateTime(l.t) + "] [" + l.type.toUpperCase() + "] " + l.text;
+    });
+    var header = "YouTube CSV Auto Event Uploader v4.8 - log diunduh " + fmtDateTime(Date.now()) + "\n" +
+                 "Jumlah baris log: " + logBuffer.length + "\n" + new Array(60).join("-") + "\n";
+    var blob = new Blob([header + lines.join("\n") + "\n"], { type: "text/plain;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "log-uploader-" + new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-") + ".txt";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+    showToast("Log diunduh");
+  }
+
+  // ================= DOWNLOAD TEMPLATE =================
+  function downloadCsvTemplate(){
+    showToast("Download template CSV...");
+    log("Download template CSV dimulai", "info");
+    var blob = new Blob([CSV_TEMPLATE], { type: "text/csv" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "template-youtube-event.csv";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  }
+
+  // ================= GAMBAR -> VIDEO 5 DETIK (dirender per event) =================
+  function isRecorderSupported(){
+    return typeof MediaRecorder !== "undefined" && typeof HTMLCanvasElement !== "undefined" &&
+           typeof HTMLCanvasElement.prototype.captureStream === "function";
+  }
+
+  function pickMimeType(){
+    var list = ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"];
+    for (var i = 0; i < list.length; i++){
+      if (MediaRecorder.isTypeSupported(list[i])) return list[i];
+    }
+    return "";
+  }
+
+  // potong teks ke beberapa baris sesuai lebar
+  function wrapText(ctx, text, maxWidth, maxLines){
+    var words = String(text).split(/\s+/);
+    var lines = [], line = "";
+    for (var i = 0; i < words.length; i++){
+      var test = line ? line + " " + words[i] : words[i];
+      if (ctx.measureText(test).width > maxWidth && line){
+        lines.push(line); line = words[i];
+        if (lines.length === maxLines - 1){
+          // sisa kata digabung ke baris terakhir, lalu dipotong dengan "..."
+          line = words.slice(i).join(" ");
+          break;
+        }
+      } else line = test;
+    }
+    lines.push(line);
+    if (lines.length > maxLines) lines.length = maxLines;
+    var last = lines.length - 1;
+    while (ctx.measureText(lines[last]).width > maxWidth && lines[last].length > 1){
+      lines[last] = lines[last].slice(0, -2) + "…";
+    }
+    return lines;
+  }
+
+  function formatTanggalIndo(dateStr){
+    var bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr);
+    if (!m) return dateStr;
+    return parseInt(m[3], 10) + " " + bulan[parseInt(m[2], 10) - 1] + " " + m[1];
+  }
+
+  // Pilih gambar upload untuk baris tertentu: dibagi bergilir (round-robin) berdasarkan posisi
+  // baris itu di daftar "events" (BUKAN posisi di antrean upload), supaya tiap baris selalu dapat
+  // gambar yang sama walau di-retry di akun lain. Kalau tidak ada gambar upload, return null (desain otomatis).
+  function pickImageForRow(row){
+    if (!userImages.length) return null;
+    if (!row) return userImages[0].img;
+    var i = events.indexOf(row);
+    if (i < 0) i = 0;
+    return userImages[i % userImages.length].img;
+  }
+
+  // Gambar satu frame ke canvas: mode upload (gambar user, bergilir kalau >1) atau desain otomatis dari judul.
+  function drawFrame(ctx, row){
+    var W = VIDEO_W, H = VIDEO_H;
+    var img = pickImageForRow(row);
+    if (img){
+      // cover: isi penuh 16:9 tanpa gepeng
+      ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
+      var iw = img.naturalWidth, ih = img.naturalHeight;
+      var scale = Math.max(W / iw, H / ih);
+      var dw = iw * scale, dh = ih * scale;
+      ctx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
+      if (row && el.overlayTitleChk.checked){
+        var grad = ctx.createLinearGradient(0, H * 0.55, 0, H);
+        grad.addColorStop(0, "rgba(0,0,0,0)"); grad.addColorStop(1, "rgba(0,0,0,.8)");
+        ctx.fillStyle = grad; ctx.fillRect(0, H * 0.55, W, H * 0.45);
+        ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+        ctx.font = "bold 54px sans-serif";
+        var ls = wrapText(ctx, row.title, W - 160, 2);
+        var y = H - 60 - (ls.length - 1) * 62;
+        ls.forEach(function(t, i){ ctx.fillText(t, W / 2, y + i * 62); });
+      }
+      return;
+    }
+    // desain otomatis
+    var bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, "#0f0f0f"); bg.addColorStop(1, "#2a0a0a");
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = "#ff0000"; ctx.fillRect(0, 0, 18, H);
+    ctx.fillRect(0, H - 14, W, 14);
+    ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+    ctx.fillStyle = "#ff4d4d"; ctx.font = "bold 34px sans-serif";
+    ctx.fillText("JADWAL TAYANG", 90, 130);
+    ctx.fillStyle = "#ffffff"; ctx.font = "bold 78px sans-serif";
+    var lines = wrapText(ctx, row ? row.title : "Judul Event", W - 180, 3);
+    var y0 = 250;
+    lines.forEach(function(t, i){ ctx.fillText(t, 90, y0 + i * 92); });
+    if (row){
+      ctx.fillStyle = "#cfcfcf"; ctx.font = "38px sans-serif";
+      ctx.fillText(formatTanggalIndo(row.date) + "  \u2022  " + row.time + " " + timeLabel(row), 90, H - 90);
+    }
+  }
+
+  // Render satu gambar thumbnail 1280x720 (JPEG, dijaga < 2 MB sesuai batas thumbnails.set). cb(err, blob).
+  function renderThumbnailForRow(row, cb){
+    try {
+      var c = document.createElement("canvas");
+      c.width = VIDEO_W; c.height = VIDEO_H;
+      var ctx = c.getContext("2d");
+      drawFrame(ctx, row);
+      var qualities = [0.92, 0.85, 0.75, 0.6, 0.45];
+      var attempt = function(i){
+        c.toBlob(function(blob){
+          if (!blob){ cb("Gagal membuat gambar thumbnail (canvas.toBlob kosong)."); return; }
+          if (blob.size <= 1900 * 1024 || i >= qualities.length - 1){
+            if (blob.size > 2 * 1024 * 1024){ cb("Thumbnail " + Math.round(blob.size / 1024) + " KB melebihi batas 2 MB dari YouTube."); return; }
+            cb(null, blob);
+          } else attempt(i + 1);
+        }, "image/jpeg", qualities[i]);
+      };
+      attempt(0);
+    } catch (e){ cb("Gagal membuat thumbnail: " + (e.message || e)); }
+  }
+
+  // Render satu video WebM 5 detik dari canvas. cb(err, blob).
+  function renderVideoForRow(row, cb){
+    if (!isRecorderSupported()){
+      cb("Browser ini tidak mendukung MediaRecorder/captureStream (coba Chrome/Edge/Firefox desktop atau Android).");
+      return;
+    }
+    if (renderingVideo){ cb("Render video sebelumnya belum selesai."); return; }
+    renderingVideo = true;
+    var done = false;
+    function finish(err, blob){
+      if (done) return;
+      done = true;
+      renderingVideo = false;
+      cb(err, blob);
+    }
+    try {
+      var vc = document.createElement("canvas");
+      vc.width = VIDEO_W; vc.height = VIDEO_H;
+      var ctx = vc.getContext("2d");
+      drawFrame(ctx, row);
+
+      var stream = vc.captureStream(10);
+      var mimeType = pickMimeType();
+      var recorder = mimeType ? new MediaRecorder(stream, { mimeType: mimeType, videoBitsPerSecond: 1500000 }) : new MediaRecorder(stream);
+      var usedType = recorder.mimeType || mimeType || "video/webm";
+      var chunks = [];
+      recorder.ondataavailable = function(e){ if (e.data && e.data.size > 0) chunks.push(e.data); };
+      recorder.onerror = function(e){ finish("MediaRecorder error: " + ((e && e.error && e.error.message) || "tidak diketahui")); };
+      recorder.onstop = function(){
+        clearInterval(tick);
+        stream.getTracks().forEach(function(t){ t.stop(); });
+        var blob = new Blob(chunks, { type: usedType.split(";")[0] });
+        if (blob.size === 0){ finish("Video hasil render kosong."); return; }
+        finish(null, blob);
+      };
+      // timeslice 1000ms supaya data terkumpul berkala
+      recorder.start(1000);
+      // gambar ulang tiap 100ms agar captureStream terus menghasilkan frame
+      var tick = setInterval(function(){ drawFrame(ctx, row); }, 100);
+      setTimeout(function(){
+        if (recorder.state !== "inactive") recorder.stop();
+      }, VIDEO_SECONDS * 1000);
+    } catch (e){
+      finish("Gagal render video: " + (e.message || e));
+    }
+  }
+
+  // ---- galeri gambar upload user (bisa lebih dari satu, dibagi bergilir per event) ----
+  function addUserImages(fileList){
+    if (!fileList || !fileList.length) return;
+    var files = Array.prototype.slice.call(fileList);
+    var added = 0;
+    files.forEach(function(file){
+      if (!/^image\/(png|jpeg|webp)$/.test(file.type)){ showToast("Gambar harus PNG / JPG / WebP: " + file.name); return; }
+      if (file.size > 10 * 1024 * 1024){ showToast("Ukuran gambar maksimal 10 MB: " + file.name); return; }
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      var entry = { id: genId(), img: img, url: url, name: file.name };
+      img.onload = function(){
+        var ratio = img.naturalWidth / img.naturalHeight;
+        if (Math.abs(ratio - 16/9) > 0.05) log("Gambar \"" + file.name + "\" rasio " + ratio.toFixed(2) + " (bukan 16:9): akan di-crop otomatis (cover).", "info");
+        if (img.naturalWidth < 1280) log("Gambar \"" + file.name + "\" resolusi " + img.naturalWidth + "x" + img.naturalHeight + " kecil, hasil bisa agak buram.", "info");
+        renderImageGallery();
+        renderAssetPreview();
+      };
+      img.onerror = function(){ URL.revokeObjectURL(url); userImages = userImages.filter(function(e){ return e !== entry; }); showToast("Gambar tidak bisa dibaca: " + file.name); renderImageGallery(); };
+      img.src = url;
+      userImages.push(entry);
+      added++;
+    });
+    if (added){
+      log((added > 1 ? added + " gambar ditambahkan" : "Gambar ditambahkan") + " ke galeri (total " + userImages.length + "). " +
+          (userImages.length > 1 ? "Dibagi bergilir ke tiap event sesuai urutan." : "Dipakai untuk semua event."), "success");
+    }
+    refreshImageUi();
+  }
+
+  function removeUserImage(id){
+    var idx = userImages.findIndex(function(e){ return e.id === id; });
+    if (idx === -1) return;
+    URL.revokeObjectURL(userImages[idx].url);
+    userImages.splice(idx, 1);
+    log("Gambar dihapus dari galeri (sisa " + userImages.length + ").", "info");
+    refreshImageUi();
+  }
+
+  function clearUserImage(){
+    userImages.forEach(function(e){ URL.revokeObjectURL(e.url); });
+    userImages = [];
+    el.imageFileInput.value = "";
+    refreshImageUi();
+    log("Semua gambar upload dihapus, kembali ke desain otomatis.", "info");
+  }
+
+  function renderImageGallery(){
+    if (!userImages.length){ el.imageGallery.style.display = "none"; el.imageGallery.innerHTML = ""; return; }
+    el.imageGallery.style.display = "flex";
+    el.imageGallery.innerHTML = "";
+    userImages.forEach(function(entry, i){
+      var wrap = document.createElement("div");
+      wrap.style.cssText = "position:relative;";
+      var img = document.createElement("img");
+      img.src = entry.url;
+      img.className = "gen-preview";
+      img.style.cssText = "width:96px;height:54px;";
+      img.title = entry.name + " (#" + (i + 1) + ")";
+      var badge = document.createElement("div");
+      badge.textContent = "#" + (i + 1);
+      badge.style.cssText = "position:absolute;top:2px;left:2px;background:rgba(0,0,0,.7);color:#fff;font-size:9px;padding:1px 5px;border-radius:6px;";
+      var rm = document.createElement("button");
+      rm.textContent = "\u00d7";
+      rm.title = "Hapus gambar ini";
+      rm.className = "acc-remove";
+      rm.style.cssText = "position:absolute;top:-6px;right:-6px;background:#1a1a1a;border:1px solid var(--border);border-radius:999px;width:20px;height:20px;line-height:18px;padding:0;font-size:14px;";
+      rm.addEventListener("click", function(){ removeUserImage(entry.id); });
+      wrap.appendChild(img); wrap.appendChild(badge); wrap.appendChild(rm);
+      el.imageGallery.appendChild(wrap);
+    });
+  }
+
+  function refreshImageUi(){
+    el.clearImageBtn.style.display = userImages.length ? "block" : "none";
+    el.overlayWrap.style.display = userImages.length ? "flex" : "none";
+    el.imgModePill.textContent = (userImages.length ? "Mode: gambar upload (" + userImages.length + ")" : "Mode: desain otomatis") + (appMode === "live" ? " (thumbnail)" : " (video)");
+    renderImageGallery();
+    renderAssetPreview();
+  }
+
+  // Preview: kalau >1 gambar, tampilkan beberapa contoh frame berurutan supaya rotasinya kelihatan.
+  function renderAssetPreview(){
+    el.assetPreview.innerHTML = "";
+    var showMulti = userImages.length > 1 && events.length > 0;
+    var n = showMulti ? Math.min(events.length, userImages.length, 6) : 1;
+    var baseEvents = events.length ? events : [{ title: "Contoh Judul Event Kamu", date: "2026-09-20", time: "20:00" }];
+    for (var k = 0; k < n; k++){
+      var sample = baseEvents[k];
+      var c = document.createElement("canvas");
+      c.width = VIDEO_W; c.height = VIDEO_H;
+      c.className = "gen-preview";
+      c.style.width = "224px"; c.style.height = "126px";
+      drawFrame(c.getContext("2d"), sample);
+      var wrap = document.createElement("div");
+      wrap.appendChild(c);
+      var lbl = document.createElement("div");
+      lbl.className = "asset-label";
+      lbl.textContent = showMulti ? "Event #" + (k + 1) + " \u2192 gambar #" + ((k % userImages.length) + 1) : "Preview frame (" + (userImages.length ? "gambar upload" : "desain otomatis") + ")";
+      wrap.appendChild(lbl);
+      el.assetPreview.appendChild(wrap);
+    }
+  }
+
+  // ================= JADWAL LIVE (liveBroadcasts.insert + thumbnails.set + videos.update) =================
+  // Klasifikasi error khusus live: reason di JSON menentukan apakah akun/channel-nya yang bermasalah (bukan kuota).
+  function classifyLiveError(status, bodyText){
+    var base = classifyApiError(status, bodyText);
+    var reasons = [];
+    try { var j = JSON.parse(bodyText); ((j.error && j.error.errors) || []).forEach(function(e){ if (e && e.reason) reasons.push(e.reason); }); } catch (e){}
+    var has = function(r){ return reasons.indexOf(r) !== -1 || new RegExp(r, "i").test(bodyText); };
+    var out = { quota: base.quota, auth: base.auth, channelBlocked: false, hint: "" };
+    if (has("liveStreamingNotEnabled")){ out.channelBlocked = true; out.hint = "Live streaming BELUM aktif di channel ini. Aktifkan di youtube.com/features (verifikasi telepon, bisa sampai 24 jam)."; }
+    else if (has("livePermissionBlocked")){ out.channelBlocked = true; out.hint = "Channel ini sedang diblokir dari live streaming. Cek youtube.com/features."; }
+    else if (has("insufficientLivePermissions") || has("insufficientPermissions")){ out.channelBlocked = true; out.hint = "Izin live tidak cukup. Login ulang akun ini dan setujui semua izin YouTube."; }
+    else if (has("userBroadcastsExceedLimit")){ out.channelBlocked = true; out.hint = "Channel ini punya terlalu banyak broadcast terjadwal. Hapus/selesaikan sebagian di YouTube Studio."; }
+    else if (has("invalidScheduledStartTime")){ out.hint = "Jadwal ditolak Google: harus di masa depan dan cukup dekat dengan sekarang. Coba tanggal lebih dekat."; }
+    return out;
+  }
+
+  // Satu event live. Tahap: 1) insert broadcast (wajib)  2) thumbnail (opsional)  3) tags via videos.update (opsional).
+  // Tahap 2 & 3 gagal TIDAK membatalkan tahap 1: broadcast sudah jadi, hanya dilaporkan sebagai peringatan.
+  function createLiveEvent(row, token, thumbBlob, cb){
+    var startUtc = rowUtcIso(row);
+    if (!startUtc){ cb({ ok: false, error: "Format tanggal/jam salah" }); return; }
+    if (isPastUtc(startUtc)){ cb({ ok: false, skipped: true, error: "Tanggal sudah lewat, di-skip" }); return; }
+
+    var body = {
+      snippet: {
+        title: row.title.slice(0, 100),
+        description: row.description || "",
+        categoryId: LIVE_CATEGORY_ID,
+        scheduledStartTime: startUtc
+      },
+      status: { privacyStatus: row.privacy, selfDeclaredMadeForKids: false },
+      contentDetails: { enableAutoStart: false, enableAutoStop: false }
+    };
+    var tags = row.tags ? row.tags.split(",").map(function(t){ return t.trim(); }).filter(Boolean) : [];
+    var costUsed = COST.live.insert;
+
+    fetch("https://www.googleapis.com/youtube/v3/liveBroadcasts?part=snippet,status,contentDetails", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json; charset=UTF-8" },
+      body: JSON.stringify(body)
+    }).then(function(res){
+      return res.text().then(function(txt){
+        if (!res.ok){
+          var cls = classifyLiveError(res.status, txt);
+          cb({ ok: false, quotaExceeded: cls.quota, authExpired: cls.auth, channelBlocked: cls.channelBlocked,
+               error: (cls.hint ? cls.hint + " " : "") + "Gagal buat broadcast (" + res.status + "): " + txt.slice(0, 160) });
+          return;
+        }
+        var bc; try { bc = JSON.parse(txt); } catch (e){ cb({ ok: false, error: "Response broadcast bukan JSON valid" }); return; }
+        var videoId = bc.id;   // id broadcast = id video di YouTube
+        var warnings = [];
+
+        // ---- tahap 2: thumbnail (retry otomatis kalau kena rate limit 429, burst limit thumbnails.set beda dari kuota harian) ----
+        var stepThumb = function(next){
+          if (!thumbBlob){ next(); return; }
+          var attempt = 0;
+          var MAX_ATTEMPTS = 3;   // percobaan awal + 2x retry khusus 429
+          var tryOnce = function(){
+            attempt++;
+            fetch("https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId=" + encodeURIComponent(videoId) + "&uploadType=media", {
+              method: "POST",
+              headers: { "Authorization": "Bearer " + token, "Content-Type": thumbBlob.type || "image/jpeg" },
+              body: thumbBlob
+            }).then(function(r){
+              costUsed += COST.live.thumb;
+              if (r.ok){ next(); return; }
+              return r.text().then(function(t){
+                if (r.status === 429 && attempt < MAX_ATTEMPTS){
+                  // 429 di thumbnails.set biasanya burst rate limit sesaat (bukan kuota harian habis) -> tunggu lalu coba lagi
+                  var delayMs = attempt === 1 ? 4000 : 10000;
+                  log("⏳ Thumbnail kena rate limit (429) untuk \"" + row.title + "\", coba lagi otomatis dalam " + (delayMs / 1000) + " detik (percobaan " + (attempt + 1) + "/" + MAX_ATTEMPTS + ")...", "info");
+                  setTimeout(tryOnce, delayMs);
+                  return;
+                }
+                var c2 = classifyApiError(r.status, t);
+                if (c2.quota) warnings.push("thumbnail: kuota habis");
+                else if (r.status === 429) warnings.push("thumbnail masih kena rate limit (429) setelah " + MAX_ATTEMPTS + "x coba, thumbnail default YouTube dipakai");
+                else if (r.status === 403) warnings.push("thumbnail ditolak (channel belum terverifikasi telepon?)");
+                else warnings.push("thumbnail gagal (" + r.status + ")");
+                next();
+              });
+            }).catch(function(e){ warnings.push("thumbnail: " + (e.message || e)); next(); });
+          };
+          tryOnce();
+        };
+
+        // ---- tahap 3: tags lewat videos.update (liveBroadcast tidak punya field tags) ----
+        var stepTags = function(next){
+          if (!tags.length){ next(); return; }
+          // videos.update MENIMPA seluruh snippet, jadi judul & kategori wajib dikirim ulang agar tidak hilang.
+          fetch("https://www.googleapis.com/youtube/v3/videos?part=snippet", {
+            method: "PUT",
+            headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json; charset=UTF-8" },
+            body: JSON.stringify({ id: videoId, snippet: { title: body.snippet.title, description: body.snippet.description, categoryId: LIVE_CATEGORY_ID, tags: tags } })
+          }).then(function(r){
+            costUsed += COST.live.tags;
+            if (r.ok){ next(); return; }
+            return r.text().then(function(t){
+              var c3 = classifyApiError(r.status, t);
+              warnings.push(c3.quota ? "tag: kuota habis" : "tag gagal (" + r.status + ")");
+              next();
+            });
+          }).catch(function(e){ warnings.push("tag: " + (e.message || e)); next(); });
+        };
+
+        stepThumb(function(){ stepTags(function(){
+          cb({ ok: true, videoId: videoId, warnings: warnings, unitsUsed: costUsed, error: warnings.length ? warnings.join("; ") : null });
+        }); });
+      });
+    }).catch(function(e){ cb({ ok: false, error: e.message || String(e) }); });
+  }
+
+  // Set ulang thumbnail utk 1 videoId yang sudah ada (dipakai fitur "Perbaiki Thumbnail Gagal"), dengan retry 429 sama seperti stepThumb di atas.
+  // cb(err, attemptsMade) -> attemptsMade dipakai buat estimasi kuota (tiap percobaan == 50 unit, baik sukses atau gagal).
+  function setThumbnailWithRetry(videoId, token, blob, title, cb){
+    var attempt = 0, MAX_ATTEMPTS = 3;
+    var tryOnce = function(){
+      attempt++;
+      fetch("https://www.googleapis.com/upload/youtube/v3/thumbnails/set?videoId=" + encodeURIComponent(videoId) + "&uploadType=media", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + token, "Content-Type": blob.type || "image/jpeg" },
+        body: blob
+      }).then(function(r){
+        if (r.ok){ cb(null, attempt); return; }
+        return r.text().then(function(t){
+          if (r.status === 429 && attempt < MAX_ATTEMPTS){
+            var delayMs = attempt === 1 ? 4000 : 10000;
+            log("⏳ Perbaikan thumbnail \"" + title + "\" kena rate limit (429), coba lagi dalam " + (delayMs / 1000) + " detik...", "info");
+            setTimeout(tryOnce, delayMs);
+            return;
+          }
+          var c = classifyApiError(r.status, t);
+          cb((c.quota ? "kuota habis" : (r.status === 403 ? "ditolak (403, channel belum terverifikasi telepon?)" : "gagal (" + r.status + ")")), attempt);
+        });
+      }).catch(function(e){ cb(e.message || String(e), attempt); });
+    };
+    tryOnce();
+  }
+
+  // Perbaiki thumbnail utk baris yang sudah sukses jadi jadwal live tapi thumbnail-nya gagal ke-set sebelumnya.
+  // TIDAK bikin ulang jadwal live-nya (videoId lama dipakai lagi), cuma kirim ulang thumbnails.set.
+  function retryFailedThumbnails(){
+    if (running){ showToast("Tunggu proses upload selesai dulu"); return; }
+    var rows = rowsNeedingThumbFix();
+    if (!rows.length){ showToast("Tidak ada thumbnail yang perlu diperbaiki"); return; }
+    if (!userImages.length){ showToast("Upload dulu gambar yang sama (atau gambar baru) sebelum perbaiki thumbnail"); return; }
+
+    var fixed = 0, failed = 0, noAcc = 0;
+    var i = 0;
+    log("Mulai perbaiki thumbnail untuk " + rows.length + " event...", "info");
+    el.fixThumbsBtn.disabled = true;
+
+    function next(){
+      if (i >= rows.length){
+        el.fixThumbsBtn.disabled = false;
+        log("Selesai perbaiki thumbnail: " + fixed + " berhasil, " + failed + " masih gagal, " + noAcc + " butuh login akun dulu.", fixed ? "success" : "error");
+        showToast(fixed + " thumbnail diperbaiki" + (failed || noAcc ? ", " + (failed + noAcc) + " belum" : ""));
+        renderEventsTable();
+        renderClientIds();
+        return;
+      }
+      var row = rows[i];
+      // cari akun yang match dgn pemilik video ini (harus channel yang sama, bukan sembarang akun) & tokennya masih hidup
+      var acc = accounts.find(function(a){
+        return !isTokenExpired(a) && ((a.channelTitle && a.channelTitle === row.uploadedVia) || (a.email && a.email === row.uploadedVia));
+      });
+      if (!acc){
+        log("⏭ Lewati \"" + row.title + "\": akun \"" + row.uploadedVia + "\" belum login/tokennya habis. Login ulang akun itu dulu lalu klik tombol ini lagi.", "error");
+        noAcc++; i++; next();
+        return;
+      }
+      renderThumbnailForRow(row, function(err, blob){
+        if (err){ log("✗ Gagal render thumbnail \"" + row.title + "\": " + err, "error"); failed++; i++; setTimeout(next, 500); return; }
+        setThumbnailWithRetry(row.videoId, acc.token, blob, row.title, function(err2, attempts){
+          addClientQuotaUsage(acc.clientId, "live", (attempts || 1) * COST.live.thumb);
+          if (err2){
+            log("✗ Thumbnail \"" + row.title + "\" masih gagal: " + err2, "error");
+            failed++;
+          } else {
+            log("✓ Thumbnail \"" + row.title + "\" berhasil diperbaiki.", "success");
+            row.message = (row.message || "").replace(/;?\s*thumbnail[^;]*/i, "").replace(/^Jadwal live dibuat, tapi:\s*;?\s*/i, "Jadwal live dibuat").trim() || "Jadwal live dibuat";
+            fixed++;
+          }
+          i++;
+          setTimeout(next, 1500);   // jeda antar-perbaikan biar gak kena 429 lagi
+        });
+      });
+    }
+    next();
+  }
+
+  // ================= UPLOAD KE YOUTUBE (videos.insert) =================
+  // token dioper eksplisit (bukan global) supaya jelas akun mana yang dipakai tiap panggilan.
+  function uploadOneEvent(row, token, videoBlob, cb){
+    var publishAtUtc = rowUtcIso(row);
+    if (!publishAtUtc){ cb({ ok: false, error: "Format tanggal/jam salah" }); return; }
+    if (isPastUtc(publishAtUtc)){ cb({ ok: false, skipped: true, error: "Tanggal sudah lewat, di-skip" }); return; }
+
+    var metadata = {
+      snippet: {
+        title: row.title,
+        description: row.description,
+        tags: row.tags ? row.tags.split(",").map(function(t){ return t.trim(); }).filter(Boolean) : []
+      },
+      status: {
+        // Wajib "private" saat insert supaya publishAt bisa auto-publish.
+        privacyStatus: "private",
+        publishAt: publishAtUtc,
+        selfDeclaredMadeForKids: false
+      }
+    };
+
+    fetch("https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json; charset=UTF-8",
+        "X-Upload-Content-Type": videoBlob.type || "video/webm",
+        "X-Upload-Content-Length": String(videoBlob.size)
+      },
+      body: JSON.stringify(metadata)
+    }).then(function(initRes){
+      if (!initRes.ok){
+        return initRes.text().then(function(errText){
+          var cls = classifyApiError(initRes.status, errText);
+          cb({ ok: false, quotaExceeded: cls.quota, authExpired: cls.auth, error: "Gagal inisiasi upload (" + initRes.status + "): " + errText.slice(0, 200) });
+        });
+      }
+      var uploadUrl = initRes.headers.get("Location");
+      if (!uploadUrl){ cb({ ok: false, error: "Tidak dapat upload URL dari response inisiasi." }); return; }
+
+      var xhr = new XMLHttpRequest();
+      xhr.open("PUT", uploadUrl, true);
+      xhr.setRequestHeader("Content-Type", videoBlob.type || "video/webm");
+      xhr.onload = function(){
+        if (xhr.status >= 200 && xhr.status < 300){
+          var videoJson;
+          try { videoJson = JSON.parse(xhr.responseText); }
+          catch (e){ cb({ ok: false, error: "Response upload tidak valid JSON" }); return; }
+          cb({ ok: true, videoId: videoJson.id, error: null });
+        } else {
+          var cls2 = classifyApiError(xhr.status, xhr.responseText);
+          cb({ ok: false, quotaExceeded: cls2.quota, authExpired: cls2.auth, error: "Upload gagal (" + xhr.status + "): " + String(xhr.responseText).slice(0, 200) });
+        }
+      };
+      xhr.onerror = function(){ cb({ ok: false, error: "Network error saat upload video (koneksi putus atau diblokir)." }); };
+      xhr.ontimeout = function(){ cb({ ok: false, error: "Timeout saat upload video." }); };
+      xhr.send(videoBlob);
+    }).catch(function(e){
+      cb({ ok: false, error: e.message || String(e) });
+    });
+  }
+
+  // Klasifikasi error API YouTube berdasarkan status + reason di JSON (bukan sekadar kata "quota").
+  function classifyApiError(status, bodyText){
+    var reasons = [];
+    try {
+      var j = JSON.parse(bodyText);
+      var errs = (j && j.error && j.error.errors) || [];
+      errs.forEach(function(e){ if (e && e.reason) reasons.push(e.reason); });
+    } catch (e){}
+    var quota = status === 403 && reasons.some(function(r){
+      return r === "quotaExceeded" || r === "dailyLimitExceeded" || r === "rateLimitExceeded" || r === "uploadLimitExceeded";
+    });
+    // fallback: kalau body bukan JSON tapi jelas menyebut quota
+    if (!quota && status === 403 && reasons.length === 0 && /quota/i.test(bodyText)) quota = true;
+    var auth = status === 401;
+    return { quota: quota, auth: auth };
+  }
+
+  // Cari akun berikutnya (mulai dari activeAccountIndex) yang kuotanya belum habis.
+  // Return null kalau semua akun sudah habis kuotanya.
+  function getNextAvailableAccount(){
+    for (var i = activeAccountIndex; i < accounts.length; i++){
+      if (accounts[i].usedCount < limitPerAccount && !isTokenExpired(accounts[i]) && !accounts[i].clientQuotaFull && !(appMode === "live" && accounts[i].liveBlocked)){
+        activeAccountIndex = i;
+        return accounts[i];
+      }
+    }
+    return null;
+  }
+
+  function runBulkCreate(){
+    if (accounts.length === 0){ showToast("Tambah minimal 1 akun dulu bos"); return; }
+    if (appMode === "video" && !isRecorderSupported()){ showToast("Browser tidak mendukung render video (MediaRecorder)"); log("MediaRecorder/captureStream tidak tersedia di browser ini. Mode Jadwal Live tidak memerlukannya.", "error"); return; }
+    var targets = events.filter(function(e){ return selectedIds[e._id]; });
+    if (targets.length === 0){ showToast("Pilih event dulu"); return; }
+
+    updateLimitPerAccount();
+    // Halaman bisa dibiarkan terbuka lintas hari: buang hitungan pemakaian & tanda 'kuota habis' dari hari sebelumnya.
+    var todayKey2 = pacificDateKey(), rolled = 0;
+    accounts.forEach(function(a){
+      if (a.usedDay && a.usedDay !== todayKey2){ a.usedCount = 0; a.clientQuotaFull = false; a.usedDay = todayKey2; rolled++; }
+    });
+    if (rolled) log(rolled + " akun direset ke 0 pemakaian karena sudah ganti hari (waktu Pasifik, sama dengan reset kuota Google).", "info");
+    activeAccountIndex = 0;
+    // usedCount TIDAK di-reset: kuota harian akun tetap dihitung antar-klik dalam satu sesi halaman.
+    // (akun yang sudah penuh dilewati; tambah akun baru atau naikkan limit kalau perlu)
+    // Cek umur token SEBELUM mulai: token yang sudah lewat umur tidak akan dipakai, yang hampir habis diberi peringatan.
+    var newlyExpired = refreshTokenStates();
+    if (newlyExpired) log(newlyExpired + " akun tokennya sudah habis dan akan dilewati. Pakai tombol 'Login ulang' pada kartu akun.", "error");
+    var soon = accounts.filter(function(a){ return !isTokenExpired(a) && tokenRemainingMs(a) <= TOKEN_WARN_MS; });
+    soon.forEach(function(a){
+      log("Peringatan: token " + (a.email || "akun") + " tinggal " + fmtRemaining(tokenRemainingMs(a)) + ", bisa habis di tengah bulk. Login ulang dulu kalau event banyak.", "error");
+    });
+    lastRun = { startedAt: Date.now(), total: targets.length, done: 0, finished: false, account: null, reason: "berjalan" };
+    saveStateNow();
+    // Rekam kondisi kuota tiap akun di awal supaya jelas kenapa satu akun dipakai/dilewati.
+    accounts.forEach(function(a, i){
+      log("Akun #" + (i+1) + " " + (a.channelTitle || a.email || "(belum ada info)") + ": terpakai " + a.usedCount + "/" + limitPerAccount +
+          (a.usedCount >= limitPerAccount ? " -> PENUH, akan dilewati" : "") + (a.expired ? " (token habis)" : ""), "info");
+    });
+    // Kapasitas nyata = jumlah Client ID yang punya akun login x ~5 video. Beri tahu kalau target melebihinya.
+    var activeClients = {};
+    accounts.forEach(function(a){ if (!a.expired && !a.clientQuotaFull) activeClients[a.clientId] = true; });
+    var nClients = Object.keys(activeClients).length;
+    var estCap = nClients * eventsPerDayPerClient(appMode);
+    log("Mode " + (appMode === "live" ? "Jadwal Live" : "Upload Video") + " | Client ID aktif: " + nClients + " (perkiraan kapasitas hari ini sekitar " + estCap + " event; kuota dihitung per Client ID, bukan per akun).", "info");
+    if (targets.length > estCap && nClients > 0){
+      log("Peringatan: target " + targets.length + " event melebihi perkiraan kapasitas " + estCap + ". Sisanya kemungkinan ditolak Google (quotaExceeded). Tambah Client ID dari project lain untuk menambah kuota.", "error");
+    }
+    if (targets.length <= limitPerAccount && accounts.length > 1){
+      log("Catatan: jumlah event (" + targets.length + ") tidak melebihi limit/akun (" + limitPerAccount + "), jadi SEMUA event akan dikerjakan akun pertama saja. Akun lain baru dipakai kalau akun pertama penuh. Kecilkan 'Limit/akun' kalau ingin dibagi ke beberapa akun.", "info");
+    }
+
+    running = true;
+    updateUploadBtnState();
+    renderAccountsList();
+    el.progressWrap.style.display = "block";
+    el.progressLabel.textContent = "0/" + targets.length;
+    el.progressFill.style.width = "0%";
+    log("Mulai bulk upload " + targets.length + " event ke " + accounts.length + " akun (limit " + limitPerAccount + " event/akun)...", "info");
+
+    var idx = 0;
+    function next(){
+      if (idx >= targets.length){
+        running = false;
+        updateUploadBtnState();
+        renderAccountsList();
+        showToast("Bulk upload selesai!");
+        log("Bulk upload selesai", "success");
+        if (lastRun){ lastRun.finished = true; lastRun.reason = "selesai"; lastRun.done = idx; }
+        saveStateNow();
+        return;
+      }
+
+      var acc = getNextAvailableAccount();
+      if (!acc){
+        running = false;
+        updateUploadBtnState();
+        renderAccountsList();
+        // Hitung PENYEBAB tiap akun tidak bisa dipakai, supaya pesannya tidak menyesatkan (token habis != kuota habis).
+        var nTok = 0, nLimit = 0, nQuota = 0, nLive = 0;
+        accounts.forEach(function(a){
+          if (isTokenExpired(a)) nTok++;
+          else if (a.clientQuotaFull) nQuota++;
+          else if (appMode === "live" && a.liveBlocked) nLive++;
+          else if (a.usedCount >= limitPerAccount) nLimit++;
+        });
+        if (nTok > 0 && nTok >= nLimit + nQuota + nLive){
+          showToast("Berhenti: token " + nTok + " akun habis. Login ulang lalu lanjutkan.");
+          log("BERHENTI karena TOKEN habis (bukan kuota): " + nTok + " akun perlu login ulang. Sisa " + (targets.length - idx) + " event tetap 'Ready'. Klik 'Login ulang' pada kartu akun, lalu tekan tombol upload lagi untuk melanjutkan.", "error");
+        } else {
+          showToast("Semua akun sudah habis / tidak bisa dipakai");
+          log("Semua akun tidak bisa dipakai (token habis: " + nTok + ", limit tercapai: " + nLimit + ", kuota Client habis: " + nQuota + (appMode === "live" ? ", live belum aktif: " + nLive : "") + "). Sisa " + (targets.length - idx) + " event belum diproses. Tambah akun / Client ID, login ulang, atau naikkan limit untuk lanjut.", "error");
+        }
+        accounts.forEach(function(a, i){
+          log("  Akun #" + (i+1) + " " + (a.channelTitle || a.email || "?") + ": " + a.usedCount + "/" + limitPerAccount + (a.expired ? " (token habis)" : ""), "error");
+        });
+        if (lastRun){ lastRun.finished = true; lastRun.reason = "semua akun habis"; lastRun.done = idx; }
+        saveStateNow();
+        targets.forEach(function(t){ var r = findEventById(t._id); if (r && r.status === "loading") r.status = "ready"; });
+        renderEventsTable();
+        return;
+      }
+
+      var row = findEventById(targets[idx]._id);
+      row.status = "loading";
+      renderEventsTable();
+      log("[" + (idx+1) + "/" + targets.length + "] Akun: " + (acc.channelTitle || acc.email || "akun " + (activeAccountIndex+1)) + " -> Render & upload: " + row.title + " @ " + row.date + " " + row.time + " " + timeLabel(row), "info");
+
+      // Cek tanggal lewat DULU sebelum buang 5 detik untuk render video.
+      var pubUtc = rowUtcIso(row);
+      if (!pubUtc || isPastUtc(pubUtc)){
+        row.status = pubUtc ? "skip" : "gagal";
+        row.message = pubUtc ? "Tanggal sudah lewat, di-skip" : "Format tanggal/jam salah";
+        log((pubUtc ? "⏭ SKIP: " : "✗ GAGAL: ") + row.title + " - " + row.message, "error");
+        idx++;
+        advance();
+        return;
+      }
+
+      // Satu langkah "hasilkan aset lalu kirim". Mode video: render WebM 5 detik -> videos.insert.
+      // Mode live: render JPEG thumbnail -> liveBroadcasts.insert (+ thumbnail + tag). Callback hasil SAMA untuk keduanya.
+      var makeAsset = appMode === "live" ? renderThumbnailForRow : renderVideoForRow;
+      makeAsset(row, function(renderErr, blob){
+        if (renderErr){
+          if (appMode === "live"){
+            // thumbnail gagal dibuat TIDAK boleh menggagalkan jadwal live: lanjut tanpa thumbnail dan beri catatan
+            log("⚠ Thumbnail gagal dibuat (" + renderErr + "), jadwal live dibuat tanpa thumbnail.", "error");
+            blob = null;
+          } else {
+            row.status = "gagal";
+            row.message = renderErr;
+            log("✗ GAGAL render: " + row.title + " - " + renderErr, "error");
+            idx++;
+            advance();
+            return;
+          }
+        }
+        var sender = appMode === "live" ? createLiveEvent : uploadOneEvent;
+        sender(row, acc.token, blob, function(res){
+          if (res.skipped){
+            row.status = "skip";
+            row.message = res.error;
+            log("⏭ SKIP: " + row.title + " - " + res.error, "error");
+            idx++;
+            advance();
+          } else if (res.ok){
+            row.status = "sukses";
+            row.videoId = res.videoId;
+            row.message = appMode === "live" ? (res.warnings && res.warnings.length ? "Jadwal live dibuat, tapi: " + res.warnings.join("; ") : "Jadwal live dibuat") : "Sukses diupload";
+            row.uploadedVia = acc.channelTitle || acc.email;
+            row.mode = appMode;
+            acc.usedCount++;
+            acc.usedDay = pacificDateKey();
+            addClientQuotaUsage(acc.clientId, appMode, res.unitsUsed);
+            persistAccounts();   // simpan usedCount terbaru (bukan token) supaya kalau refresh, hitungan ini ikut kepulihkan
+            log("✓ SUKSES" + (appMode === "live" ? " (jadwal live)" : "") + " via " + (acc.channelTitle || acc.email) + ": " + row.title + " -> id " + res.videoId +
+                (res.unitsUsed ? " (" + res.unitsUsed + " unit)" : ""), "success");
+            if (res.warnings && res.warnings.length) log("  ⚠ Catatan: " + res.warnings.join("; "), "error");
+            if (acc.usedCount >= limitPerAccount){
+              log("Akun " + (acc.channelTitle || acc.email) + " sudah mencapai limit " + limitPerAccount + " event, pindah ke akun berikutnya" + (activeAccountIndex + 1 < accounts.length ? " (akun #" + (activeAccountIndex + 2) + ")." : ", TAPI tidak ada akun berikutnya."), "info");
+              activeAccountIndex++;
+            }
+            idx++;
+            advance();
+          } else if (res.channelBlocked){
+            // Masalah ada di CHANNEL akun ini (live belum aktif / terblokir / izin kurang), bukan kuota. Lewati akun, coba akun lain.
+            row.status = "ready";
+            acc.expired = false;
+            acc.liveBlocked = true;
+            log("⚠ Akun " + (acc.channelTitle || acc.email) + " tidak bisa membuat live: " + res.error + " Akun ini dilewati, event dicoba di akun lain.", "error");
+            activeAccountIndex++;
+            advance();   // idx TIDAK bertambah
+          } else if (res.quotaExceeded){
+            // Kuota akun habis lebih cepat dari limit manual -> tandai penuh & pindah akun, ULANGI baris yang sama.
+            row.status = "ready"; // kembalikan dari "loading" supaya tidak nyangkut
+            // Kuota YouTube dihitung PER CLIENT ID (project), jadi semua akun di Client ID yang sama ikut penuh.
+            var sameClient = accountsOfClient(acc.clientId);
+            sameClient.forEach(function(a){ a.clientQuotaFull = true; });
+            log("⚠ Kuota Client ID " + shortClientId(acc.clientId) + " habis (quotaExceeded). " + sameClient.length + " akun di Client ID ini ditandai penuh; router lompat ke Client ID lain.", "error");
+            activeAccountIndex++;
+            advance(); // idx TIDAK bertambah
+          } else if (res.authExpired){
+            // Token 401 (kedaluwarsa ~1 jam): tandai akun tak bisa dipakai, ulangi baris di akun lain.
+            row.status = "ready";
+            log("⚠ Token akun " + (acc.channelTitle || acc.email) + " kedaluwarsa/ditolak (401). Akun dilewati; klik 'Login ulang' pada kartu akun itu untuk lanjut (tidak perlu Tambah Akun baru).", "error");
+            acc.expired = true;   // usedCount TIDAK diubah: kuotanya belum tentu habis, hanya tokennya
+            activeAccountIndex++;
+            advance();
+          } else {
+            row.status = "gagal";
+            row.message = res.error;
+            log("✗ GAGAL: " + row.title + " - " + res.error, "error");
+            idx++;
+            advance();
+          }
+        });
+      });
+    }
+    function advance(){
+      if (lastRun){ lastRun.done = idx; lastRun.account = activeAccountIndex; }
+      saveStateNow();
+      renderEventsTable();
+      renderAccountsList();
+      renderClientIds();
+      el.progressLabel.textContent = idx + "/" + targets.length;
+      el.progressFill.style.width = (idx/targets.length*100) + "%";
+      // Jeda antar-event: dilebarkan khusus mode Live + ada thumbnail upload (thumbnails.set gampang kena rate limit 429
+      // kalau ditembak beruntun cepat), supaya lebih longgar dan gak gampang ke-burst-limit lagi.
+      var delayMs = (appMode === "live" && userImages.length) ? 2500 : 1000;
+      setTimeout(next, delayMs);
+    }
+    next();
+  }
+
+  function findEventById(id){
+    for (var i = 0; i < events.length; i++) if (events[i]._id === id) return events[i];
+    return null;
+  }
+
+  // ================= EVENT LISTENERS =================
+  el.saveClientIdBtn.addEventListener("click", saveClientId);
+  el.addAccountBtn.addEventListener("click", doAddAccount);
+  el.limitPerAccountInput.addEventListener("change", function(){
+    limitAutoManaged = false;   // user pernah ubah manual -> jangan ditimpa lagi saat ganti mode
+    updateLimitPerAccount();
+    el.limitPerAccountInput.value = limitPerAccount; // rapikan tampilan setelah selesai mengetik
+  });
+  el.limitPerAccountInput.addEventListener("input", function(){
+    // saat mengetik: jangan paksa nilai kosong jadi default; update hanya kalau angka valid
+    limitAutoManaged = false;
+    var v = parseInt(el.limitPerAccountInput.value, 10);
+    if (!isNaN(v) && v >= 1){ limitPerAccount = v; renderAccountsList(); saveState(); }
+  });
+
+  el.pickFileBtn.addEventListener("click", function(){ el.csvFileInput.click(); });
+  el.csvFileInput.addEventListener("change", function(e){ handleFiles(e.target.files); });
+  el.dropZone.addEventListener("click", function(e){
+    if (e.target === el.pickFileBtn) return;
+    el.csvFileInput.click();
+  });
+  el.dropZone.addEventListener("dragover", function(e){ e.preventDefault(); el.dropZone.classList.add("drag"); });
+  el.dropZone.addEventListener("dragleave", function(){ el.dropZone.classList.remove("drag"); });
+  el.dropZone.addEventListener("drop", function(e){
+    e.preventDefault();
+    el.dropZone.classList.remove("drag");
+    handleFiles(e.dataTransfer.files);
+  });
+
+  el.pickImageBtn.addEventListener("click", function(){ el.imageFileInput.click(); });
+  el.imageFileInput.addEventListener("change", function(e){ addUserImages(e.target.files); e.target.value = ""; });
+  el.clearImageBtn.addEventListener("click", clearUserImage);
+  el.overlayTitleChk.addEventListener("change", renderAssetPreview);
+
+  el.selectAllChk.addEventListener("change", function(){
+    var checked = this.checked;
+    events.forEach(function(r){ selectedIds[r._id] = checked; });
+    renderEventsTable();
+  });
+  el.uploadAllBtn.addEventListener("click", runBulkCreate);
+  el.clearLogBtn.addEventListener("click", function(){
+    el.logBody.innerHTML = "";
+    logBuffer = [];
+    saveLog();
+  });
+  el.downloadLogBtn.addEventListener("click", downloadLog);
+  el.fixThumbsBtn.addEventListener("click", retryFailedThumbnails);
+  el.downloadTemplateBtn.addEventListener("click", downloadCsvTemplate);
+
+  // ================= INIT =================
+  // Catatan: token akses TIDAK disimpan permanen di localStorage demi keamanan
+  // (multi-akun berarti multi-token, dan token expired dalam ~1 jam). Tapi DAFTAR akunnya
+  // (email/channel/clientId, bukan token) tetap dipulihkan di bawah, supaya user tinggal
+  // "Login ulang" per akun (bukan "Tambah Akun" dari nol) setelah refresh.
+  // ---- pulihkan daftar akun (tanpa token) dari sesi sebelumnya ----
+  (function restoreAccountsMeta(){
+    var raw = null;
+    try { raw = localStorage.getItem("yt_csv_accounts_meta"); } catch (e){}
+    if (!raw) return;
+    var lite; try { lite = JSON.parse(raw); } catch (e){ return; }
+    if (!Array.isArray(lite) || !lite.length) return;
+    var restored = 0, skippedNoClient = 0, resetStale = 0;
+    var todayKey = pacificDateKey();
+    lite.forEach(function(a){
+      if (!a || !a.clientId) return;
+      if (clientIds.indexOf(a.clientId) === -1){ skippedNoClient++; return; }   // Client ID-nya sendiri sudah dihapus, tidak bisa login ulang ke situ
+      accounts.push({
+        id: genId(),
+        clientId: a.clientId,
+        token: null,
+        loginAt: null,
+        expired: true,             // belum ada token -> tampil "Token habis, klik Login ulang"
+        email: a.email || null,
+        name: a.name || null,
+        picture: null,
+        channelTitle: a.channelTitle || null,
+        // usedCount hanya berlaku di HARI (Pasifik) yang sama: kuota Google sudah reset, jadi hitungan hari lain dibuang.
+        usedCount: (a.usedDay === todayKey ? (a.usedCount || 0) : 0),
+        usedDay: todayKey
+      });
+      if ((a.usedCount || 0) > 0 && a.usedDay !== todayKey) resetStale++;
+      restored++;
+    });
+    if (restored){
+      log(restored + " akun dipulihkan dari sesi sebelumnya (tanpa token, demi keamanan). Klik 'Login ulang' per akun atau tombol 'Login ulang yang habis' di bawah untuk lanjut tanpa perlu Tambah Akun dari nol.", "info");
+      if (skippedNoClient) log(skippedNoClient + " akun sesi sebelumnya dilewati karena Client ID-nya sudah dihapus.", "info");
+      if (resetStale) log(resetStale + " akun punya hitungan pemakaian dari hari lain: direset ke 0 (kuota Google sudah reset, hari dihitung waktu Pasifik).", "info");
+    }
+  })();
+
+  // ---- pulihkan log & data dari sesi sebelumnya ----
+  (function restoreSession(){
+    var savedLog = loadLogBuffer();
+    if (savedLog.length){
+      logBuffer = savedLog;
+      savedLog.forEach(function(l){ appendLogLine(l.t, l.type || "info", l.text); });
+    }
+    var st = loadState();
+    if (st && Array.isArray(st.events) && st.events.length){
+      events = st.events;
+      selectedIds = st.selectedIds || {};
+      if (st.limitPerAccount >= 1){ limitPerAccount = st.limitPerAccount; el.limitPerAccountInput.value = limitPerAccount; limitAutoManaged = false; }
+      lastRun = st.lastRun || null;
+
+      // baris yang statusnya "loading" berarti halaman tertutup/refresh di tengah upload: video MUNGKIN sudah terupload.
+      var interrupted = 0;
+      events.forEach(function(r){
+        if (r.status === "loading"){ r.status = "gagal"; r.message = "Terputus (halaman refresh/ditutup). Cek manual di YouTube Studio sebelum upload ulang, video mungkin sudah masuk."; interrupted++; }
+      });
+      var counts = { sukses: 0, gagal: 0, skip: 0, ready: 0 };
+      events.forEach(function(r){ if (counts[r.status] !== undefined) counts[r.status]++; });
+
+      if (interrupted > 0) saveStateNow();   // tulis langsung (bukan ditunda) supaya status 'Terputus' tidak hilang kalau tab ditutup lagi
+
+      var msg = "Sesi sebelumnya dipulihkan (" + fmtDateTime(st.savedAt) + "): " + events.length + " event, " +
+                counts.sukses + " sukses, " + counts.gagal + " gagal, " + counts.skip + " skip, " + counts.ready + " belum diupload.";
+      log(msg, "info");
+      if (interrupted > 0) log("PERINGATAN: " + interrupted + " event terputus di tengah upload. Cek YouTube Studio dulu supaya tidak terupload ganda.", "error");
+      if (st.lastRun && !st.lastRun.finished){
+        log("Bulk upload sebelumnya TIDAK selesai (sampai " + st.lastRun.done + "/" + st.lastRun.total + "). Kemungkinan halaman ter-refresh/ditutup. Daftar akun sudah dipulihkan (tanpa token) di bawah, klik 'Login ulang' per akun lalu upload sisanya.", "error");
+      }
+
+      var html = '<div class="warn-box" style="margin-bottom:14px;">' +
+        '<div class="warn-line"><span>&#128190;</span><span>Data sesi sebelumnya dipulihkan: ' + escapeHtml(String(events.length)) + ' event (' +
+        counts.sukses + ' sukses, ' + counts.gagal + ' gagal, ' + counts.ready + ' belum diupload). Daftar akun sudah dipulihkan (tanpa token, demi keamanan) &mdash; klik <b>Login ulang</b> per akun atau tombol <b>Login ulang yang habis</b> sebelum upload. Baris yang sudah <b>Sukses</b> tidak akan diupload ulang kalau kamu hanya memilih baris yang belum selesai.</span></div>' +
+        '<div style="margin-top:8px;"><button class="btn-ghost" id="resetSessionBtn" style="padding:7px 12px;font-size:11px;">Hapus data tersimpan</button></div></div>';
+      el.restoreBanner.innerHTML = html;
+      el.restoreBanner.style.display = "block";
+      var rb = document.getElementById("resetSessionBtn");
+      if (rb) rb.addEventListener("click", function(){
+        try { localStorage.removeItem(LS_STATE); } catch (e){}
+        events = []; selectedIds = {}; lastRun = null;
+        el.restoreBanner.style.display = "none";
+        renderEventsTable(); renderPreviewTable(); renderAssetPreview();
+        log("Data tersimpan dihapus.", "info");
+      });
+    }
+  })();
+
+  // Perbarui sisa waktu token di kartu akun secara berkala (tidak saat upload berjalan, supaya layar tidak berkedip),
+  // DAN coba perpanjang token diam-diam untuk akun yang mepet/habis (jalan terus meski sedang bulk upload,
+  // karena justru saat itulah paling penting supaya proses tidak keputus).
+  setInterval(function(){
+    if (accounts.length === 0) return;
+    if (!running && !pendingRelogin){
+      var n = refreshTokenStates();
+      if (n > 0){
+        log(n + " akun tokennya habis. Klik 'Login ulang' pada kartu akun.", "error");
+      }
+      renderAccountsList();
+    }
+    if (!pendingRelogin) maybeStartSilentRefreshes();
+  }, 30000);
+  el.reloginAllBtn.addEventListener("click", reloginAllExpired);
+  el.modeVideoBtn.addEventListener("click", function(){ setMode("video"); });
+  el.modeLiveBtn.addEventListener("click", function(){ setMode("live"); });
+
+  applyModeUi();
+  renderClientIds();
+  updateGeneralUi();
+  renderPreviewTable();
+  renderEventsTable();
+  renderAssetPreview();
+  refreshImageUi();
+  if (appMode === "video" && !isRecorderSupported()) log("PERINGATAN: browser ini tidak mendukung MediaRecorder/captureStream, render video tidak akan jalan (iOS Safari lama). Pakai Chrome/Edge/Firefox, atau pakai mode Jadwal Live yang tidak butuh render video.", "error");
+  initGsi();
+
+})();
+</script>
+</body>
+</html>
