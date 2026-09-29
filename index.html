@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>YouTube Obot CS v4.8 (Vanilla JS)</title>
+<title>YouTube Jhony Auto Tools</title>
 <meta name="theme-color" content="#0f0f0f">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -133,7 +133,7 @@
     <div class="brand">
       <div class="brand-icon">&#9654;</div>
       <div>
-        <h1>YouTube Obot CS v4.8</h1>
+        <h1>YouTube Jhony Auto Tools</h1>
         <p>Bulk jadwal dari Excel/CSV &bull; WIB &rarr; YouTube (upload video <b>atau</b> jadwal live)</p>
       </div>
     </div>
@@ -155,6 +155,7 @@
         <div style="display:flex;gap:8px;">
           <button class="btn-white" id="modeVideoBtn" style="flex:1;">Upload Video</button>
           <button class="btn-ghost" id="modeLiveBtn" style="flex:1;">Jadwal Live</button>
+          <button class="btn-ghost" id="modePlaylistBtn" style="flex:1;">Playlist</button>
         </div>
         <div class="note-box" id="modeNote" style="margin-top:10px;"></div>
       </div>
@@ -172,6 +173,19 @@
           (jadwal live 50 unit, thumbnail 50 unit, update tag 50 unit).
           Menambah akun di Client ID yang sama <b>tidak</b> menambah kuota; menambah <b>Client ID dari project berbeda</b> yang menambah kuota.
           Kalau Client ID masih status <b>Testing</b>, tiap akun yang dipakai wajib didaftarkan di <b>Audience &rarr; Test users</b> project itu.
+          <br><br>
+          <b>Soal token: tidak dipakai bersama antar Client ID.</b> Token dibuat untuk <b>1 pasangan akun Google + 1 Client ID</b>.
+          Akun yang sama yang login lewat Client ID #1 dan Client ID #2 akan punya <b>dua token terpisah</b>, dan token milik Client ID #1
+          tidak bisa dipakai untuk mengirim request atas nama Client ID #2. Kuota yang kepakai selalu dihitung ke <b>project pemilik Client ID
+          yang menerbitkan token itu</b>. Jadi:
+          <ul style="margin:6px 0 0 18px;padding:0;">
+            <li>Banyak akun di <b>satu</b> Client ID: token beda-beda per akun, tapi <b>kuotanya digabung</b> (satu ember 10.000 unit + 100 upload/hari).</li>
+            <li>Akun yang sama di <b>dua</b> Client ID: token-nya terpisah dan kuotanya terpisah, tapi itu tetap dihitung sebagai akun yang sama di sisi Google.</li>
+            <li>Token akses hanya hidup sekitar 60 menit. Tiap Client ID juga dibatasi maksimal <b>100 refresh token per akun Google</b>;
+                kalau lewat, refresh token paling lama otomatis mati tanpa peringatan.</li>
+            <li>Client ID yang statusnya <b>Testing</b>: refresh token cuma berlaku sekitar 7 hari, setelah itu akun perlu login ulang.
+                Pindahkan project ke <b>In production</b> kalau mau lebih awet.</li>
+          </ul>
         </div>
       </div>
 
@@ -190,6 +204,7 @@
           Klik langsung <b>Tambah Akun</b>, tidak perlu pilih Client ID sama sekali &mdash; tool otomatis pakai <b>Client ID #1 dulu sampai habis/penuh</b> (semua akunnya kena limit atau kuota project itu habis), baru pindah ke Client ID #2, dst, sesuai urutan kamu tambahin di daftar Client ID.
           Muncul popup pilih akun Google (selalu tampil layar pilih akun, tidak auto-skip).
           Tool <b>tidak bisa login sendiri</b> hanya dari email; tiap akun tetap perlu satu kali persetujuan di popup, tapi Client ID yang dipakai dicatat otomatis.
+          Token hasil login <b>terikat ke Client ID yang dipakai saat itu</b> dan tidak bisa dipindah ke Client ID lain; kalau mau akun yang sama dipakai di Client ID lain, akun itu harus login lagi lewat Client ID tersebut.
           Akun yang sama tidak bisa ditambahkan dua kali di Client ID yang sama.
           Kalau 1 akun Google punya beberapa Brand Account/channel, <b>switch dulu manual</b> di studio.youtube.com ke channel yang dimaksud
           sebelum klik Tambah Akun, supaya token yang didapat terikat ke channel yang benar. Kalau semua akun cuma channel utama
@@ -213,6 +228,7 @@
     </div>
   </section>
 
+  <div id="videoLiveWrap">
   <!-- SECTION 2: UPLOAD CSV / EXCEL -->
   <section>
     <div class="sec-head">
@@ -262,12 +278,12 @@
   <!-- SECTION 3: GAMBAR VIDEO 5 DETIK -->
   <section>
     <div class="sec-head">
-      <div class="sec-head-left"><div class="num-badge">3</div><h2>Gambar Video (40 detik)</h2></div>
+      <div class="sec-head-left"><div class="num-badge">3</div><h2>Gambar Video (5 detik)</h2></div>
       <span class="tag-pill" id="imgModePill">Mode: desain otomatis</span>
     </div>
     <div class="sec-body">
       <div class="note-box" style="margin-bottom:14px;">
-        <b>Mode Video:</b> tiap event di-render jadi <b>video WebM 40 detik</b> dari gambar (1280&times;720); thumbnail otomatis diambil YouTube dari frame video.<br>
+        <b>Mode Video:</b> tiap event di-render jadi <b>video WebM 5 detik</b> dari gambar (1280&times;720); thumbnail otomatis diambil YouTube dari frame video.<br>
         <b>Mode Jadwal Live:</b> gambar yang dipilih dipakai sebagai <b>thumbnail JPEG</b> (dijaga &lt; 2 MB) lewat <code class="inline">thumbnails.set</code>; tidak ada video yang dirender.<br>
         &bull; <b>Tanpa upload gambar:</b> desain otomatis dari judul + jadwal tiap event (beda-beda per event).<br>
         &bull; <b>Upload 1 gambar:</b> gambar itu dipakai sama untuk semua event.<br>
@@ -282,8 +298,8 @@
 
       <div id="imageGallery" style="display:none; flex-wrap:wrap; gap:10px; margin-bottom:12px;"></div>
 
-      <label class="checkbox-lbl" id="overlayWrap" style="display:none;margin-bottom:12px;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:12px;">
-        <input type="checkbox" id="overlayTitleChk" checked> <b>&#9997;&#65039; Tempel judul event di atas gambar upload</b> (judul otomatis ditulis di bawah gambar, sesuai judul tiap event)
+      <label class="checkbox-lbl" id="overlayWrap" style="display:none;margin-bottom:12px;">
+        <input type="checkbox" id="overlayTitleChk"> Tempel judul event di atas gambar upload
       </label>
 
       <div class="preview-assets" id="assetPreview"></div>
@@ -363,6 +379,120 @@
       <pre class="mono tpl" id="tplPreview"></pre>
     </div>
   </section>
+  </div>
+  <!-- /videoLiveWrap -->
+
+  <!-- SECTION PLAYLIST (mode Playlist) -->
+  <div id="playlistWrap" style="display:none;">
+  <section>
+    <div class="sec-head">
+      <div class="sec-head-left"><div class="num-badge">P</div><h2>Bikin / Isi Playlist</h2></div>
+      <span class="tag-pill">public/unlisted/private</span>
+    </div>
+    <div class="sec-body">
+      <div class="note-box" style="margin-bottom:14px;">
+        Bikin playlist baru di channel kamu, lalu isi dengan video &mdash; boleh video kamu sendiri atau video <b>publik</b> orang lain
+        yang sejenis (mis. kompilasi/kurasi video sport). Video <b>private</b> milik orang lain tidak bisa ditambahkan (API akan menolak).
+        Biaya per aksi: bikin playlist 50 unit, tiap video ditambahkan 50 unit (dari kuota 10.000/hari per Client ID, sama seperti mode Jadwal Live).
+      </div>
+
+      <div class="field">
+        <label>Akun YouTube (pemilik playlist)</label>
+        <select id="plAccountSelect" style="width:100%;"></select>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label>Import Banyak Playlist dari Excel/CSV (opsional &mdash; sampai 30 playlist sekaligus)</label>
+        <div class="small" style="color:var(--muted);margin-bottom:8px;">
+          Kolom: <code class="inline">title,description,privacy</code>. Tiap baris = 1 playlist yang akan dibuat.
+          Kalau file ini diisi, field "Judul Playlist" manual di bawah <b>diabaikan</b> &mdash; yang dipakai daftar dari file ini.
+        </div>
+        <input type="file" id="plCsvFileInput" accept=".csv,.xlsx,.xls" style="display:none;">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn-white" id="plPickFileBtn" style="flex:1;min-width:160px;">Pilih File CSV/Excel Playlist</button>
+          <button class="btn-ghost" id="plDownloadTemplateBtn" style="flex-shrink:0;">Download Template</button>
+          <button class="btn-ghost" id="plClearRowsBtn" style="flex-shrink:0;display:none;">Clear</button>
+        </div>
+        <div id="plRowsSummary" style="margin-top:8px;font-size:12px;color:var(--muted);"></div>
+        <div id="plRowsTable" style="margin-top:8px;display:none;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;"></div>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label>Judul Playlist <span style="font-weight:400;color:var(--muted);">(dipakai kalau TIDAK import CSV &mdash; cuma bikin 1 playlist)</span></label>
+        <input type="text" id="plTitleInput" placeholder="Contoh: Kompilasi Sport Terbaik">
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label>Deskripsi Playlist (opsional)</label>
+        <textarea id="plDescInput" rows="2" style="width:100%;padding:10px;" placeholder="Deskripsi singkat playlist..."></textarea>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label>Privacy Playlist</label>
+        <select id="plPrivacySelect" style="width:100%;">
+          <option value="public" selected>public</option>
+          <option value="unlisted">unlisted</option>
+          <option value="private">private</option>
+        </select>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label>Cari Video by Kata Kunci (opsional)</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="plSearchInput" placeholder="Contoh: highlight sepak bola">
+          <button class="btn-white" id="plSearchBtn" style="flex-shrink:0;">Cari</button>
+        </div>
+        <div class="small" style="color:var(--muted);margin-top:6px;">Pakai token akun yang dipilih di atas. Tiap pencarian &asymp; 100 unit kuota, maksimal 25 video publik per pencarian.</div>
+        <div id="plSearchResults" style="margin-top:10px;display:none;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto;"></div>
+        <button class="btn-ghost" id="plAddSelectedBtn" style="width:100%;margin-top:10px;display:none;">+ Tambahkan yang Dicentang ke Daftar Video (masuk ke SEMUA playlist)</button>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
+        <label>Daftar Link Video (satu link/ID per baris)</label>
+        <textarea id="plVideoListInput" rows="8" style="width:100%;padding:10px;font-family:monospace;font-size:12px;" placeholder="https://www.youtube.com/watch?v=xxxxxxxxxxx&#10;https://youtu.be/yyyyyyyyyyy&#10;https://www.youtube.com/live/zzzzzzzzzzz"></textarea>
+        <div class="small" style="color:var(--muted);margin-top:6px;" id="plVideoCountLabel">0 link terdeteksi</div>
+        <div class="small" style="color:var(--muted);margin-top:4px;">Video di daftar ini akan ditambahkan ke <b>SEMUA</b> playlist yang dibuat &mdash; baik dari CSV maupun manual.</div>
+      </div>
+
+      <div class="field" style="margin-top:14px;padding:12px;border:1px solid var(--border,#333);border-radius:10px;">
+        <label style="display:flex;gap:8px;align-items:center;cursor:pointer;">
+          <input type="checkbox" id="plCoverChk" checked> Pakai event live sebagai cover playlist
+        </label>
+        <div class="small" style="color:var(--muted);margin-top:6px;">
+          Sebelum tiap playlist dibuat, tool membuat <b>1 event live</b> dari baris Excel (akun yang sama dengan pemilik playlist), lalu event itu dimasukkan
+          sebagai video <b>pertama</b> di playlist, jadi otomatis jadi cover. Kalau event live gagal dibuat, playlist itu <b>tidak dibuat</b>.
+          Tiap playlist memakai 1 baris Excel yang belum dibuat (berurutan). Biaya tambahan: 100 unit per playlist.
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+          <button class="btn-white" id="plCoverPickBtn" style="flex:1;min-width:160px;">Upload Excel Event Cover</button>
+          <input type="file" id="plCoverFileInput" accept=".csv,.xlsx,.xls" style="display:none;">
+        </div>
+        <div class="small" id="plCoverInfo" style="margin-top:8px;color:var(--muted);">0 event dari Excel</div>
+      </div>
+
+      <button class="btn-primary" id="buildPlaylistBtn" style="width:100%;margin-top:16px;">BUAT SEMUA PLAYLIST &amp; ISI VIDEO</button>
+
+      <div style="margin-top:14px;display:none;" id="plProgressWrap">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;">
+          <span>Progress tambah video...</span><span class="mono" id="plProgressLabel">0/0</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="plProgressFill"></div></div>
+      </div>
+
+      <div class="log-box" style="margin-top:14px;">
+        <div class="log-head">
+          <span>Log Output</span>
+          <span style="display:flex;gap:14px;">
+            <button class="clear-btn" id="downloadLogBtn2">Unduh Log</button>
+            <button class="clear-btn" id="clearLogBtn2">Clear</button>
+          </span>
+        </div>
+        <div class="log-body" id="logBody2"></div>
+      </div>
+    </div>
+  </section>
+  </div>
+  <!-- /playlistWrap -->
 
 </main>
 
@@ -410,6 +540,9 @@
       removeItem: function(k){ return real.removeItem(prefix + k); }
     };
   })();
+
+  // Token akun disimpan langsung di browser (hasil login Google Identity Services).
+  function ensureFreshToken(acc){ return Promise.resolve(acc.token); }
 
   // ================= KONSTANTA & STATE =================
   var CSV_TEMPLATE = 'title,date,time,description,privacy,tags\n' +
@@ -495,11 +628,11 @@
     return mode === "live" ? Math.floor(COST.DAILY_UNITS / LIVE_EVENT_COST) : COST.VIDEO_BUCKET;   // 66 vs 100
   }
   var LS_MODE = "yt_csv_mode";
-  var appMode = (function(){ try { var m = localStorage.getItem("yt_csv_mode"); return m === "live" ? "live" : "video"; } catch (e){ return "video"; } })();
+  var appMode = (function(){ try { var m = localStorage.getItem("yt_csv_mode"); return m === "live" ? "live" : (m === "playlist" ? "playlist" : "video"); } catch (e){ return "video"; } })();
   // Default "Limit/akun" mengikuti kuota harian per Client ID sesuai mode: 66 (live) / 100 (video).
   // saveState/restoreState di bawah bisa menimpa ini kalau ada sesi tersimpan (dan mematikan limitAutoManaged).
   limitPerAccount = eventsPerDayPerClient(appMode);
-  var VIDEO_SECONDS = 40;
+  var VIDEO_SECONDS = 5;
   var VIDEO_W = 1280, VIDEO_H = 720;
   // Galeri gambar upload user. Array kosong = mode desain otomatis.
   // Tiap item: { img: HTMLImageElement, url: object URL, name: nama file }
@@ -520,6 +653,36 @@
     reloginAllBtn: document.getElementById("reloginAllBtn"),
     modeVideoBtn: document.getElementById("modeVideoBtn"),
     modeLiveBtn: document.getElementById("modeLiveBtn"),
+    modePlaylistBtn: document.getElementById("modePlaylistBtn"),
+    videoLiveWrap: document.getElementById("videoLiveWrap"),
+    playlistWrap: document.getElementById("playlistWrap"),
+    plAccountSelect: document.getElementById("plAccountSelect"),
+    plCsvFileInput: document.getElementById("plCsvFileInput"),
+    plPickFileBtn: document.getElementById("plPickFileBtn"),
+    plDownloadTemplateBtn: document.getElementById("plDownloadTemplateBtn"),
+    plClearRowsBtn: document.getElementById("plClearRowsBtn"),
+    plRowsSummary: document.getElementById("plRowsSummary"),
+    plRowsTable: document.getElementById("plRowsTable"),
+    plTitleInput: document.getElementById("plTitleInput"),
+    plDescInput: document.getElementById("plDescInput"),
+    plPrivacySelect: document.getElementById("plPrivacySelect"),
+    plVideoListInput: document.getElementById("plVideoListInput"),
+    plVideoCountLabel: document.getElementById("plVideoCountLabel"),
+    plSearchInput: document.getElementById("plSearchInput"),
+    plSearchBtn: document.getElementById("plSearchBtn"),
+    plSearchResults: document.getElementById("plSearchResults"),
+    plAddSelectedBtn: document.getElementById("plAddSelectedBtn"),
+    buildPlaylistBtn: document.getElementById("buildPlaylistBtn"),
+    plCoverChk: document.getElementById("plCoverChk"),
+    plCoverPickBtn: document.getElementById("plCoverPickBtn"),
+    plCoverFileInput: document.getElementById("plCoverFileInput"),
+    plCoverInfo: document.getElementById("plCoverInfo"),
+    plProgressWrap: document.getElementById("plProgressWrap"),
+    plProgressLabel: document.getElementById("plProgressLabel"),
+    plProgressFill: document.getElementById("plProgressFill"),
+    logBody2: document.getElementById("logBody2"),
+    clearLogBtn2: document.getElementById("clearLogBtn2"),
+    downloadLogBtn2: document.getElementById("downloadLogBtn2"),
     modeNote: document.getElementById("modeNote"),
     addAccountBtn: document.getElementById("addAccountBtn"),
     limitPerAccountInput: document.getElementById("limitPerAccountInput"),
@@ -609,14 +772,25 @@
   // ================= MODE (video / live) =================
   function applyModeUi(){
     var live = appMode === "live";
-    el.modeVideoBtn.className = live ? "btn-ghost" : "btn-white";
+    var playlist = appMode === "playlist";
+    el.modeVideoBtn.className = (!live && !playlist) ? "btn-white" : "btn-ghost";
     el.modeLiveBtn.className = live ? "btn-white" : "btn-ghost";
+    el.modePlaylistBtn.className = playlist ? "btn-white" : "btn-ghost";
+    el.videoLiveWrap.style.display = playlist ? "none" : "";
+    el.playlistWrap.style.display = playlist ? "" : "none";
+    if (playlist){
+      renderPlaylistAccountSelect();
+      if (typeof updateCoverInfo === "function") updateCoverInfo();
+      el.modeNote.innerHTML = '<b>Mode Playlist.</b> Bikin playlist baru di channel kamu lalu isi dengan video &mdash; video kamu sendiri atau video publik orang lain yang sejenis. ' +
+        'Scroll ke bawah ke card <b>&ldquo;Bikin / Isi Playlist&rdquo;</b> untuk pilih akun, isi judul playlist, cari video by kata kunci, atau tempel link video manual.';
+      return;
+    }
     el.modeNote.innerHTML = live
       ? '<b>Mode Jadwal Live.</b> Yang dibuat adalah <b>halaman event live terjadwal</b> (judul, deskripsi, tag, thumbnail), <b>bukan video</b>. Tidak ada yang tayang otomatis: konten baru ada kalau kamu benar-benar siaran. ' +
         'Biaya per event <b>150 unit</b> (jadwal 50 + thumbnail 50 + tag 50) &asymp; <b>' + eventsPerDayPerClient("live") + ' event/hari per Client ID</b>. ' +
         '<b>Syarat:</b> live streaming harus <b>aktif</b> di channel (verifikasi telepon, aktivasi pertama bisa sampai 24 jam) dan channel harus terverifikasi untuk thumbnail. ' +
         'Jadwal harus di masa depan dan &ldquo;cukup dekat&rdquo; (batas Google tidak dipublikasikan, kalau ditolak coba tanggal lebih dekat). Render video tidak dipakai.'
-      : '<b>Mode Upload Video.</b> Tiap event di-render jadi video WebM 40 detik lalu diupload. Kuota: <b>' + eventsPerDayPerClient("video") + ' upload/hari per Client ID</b> (bucket sendiri, 1 unit/upload). ' +
+      : '<b>Mode Upload Video.</b> Tiap event di-render jadi video WebM 5 detik lalu diupload. Kuota: <b>' + eventsPerDayPerClient("video") + ' upload/hari per Client ID</b> (bucket sendiri, 1 unit/upload). ' +
         'Tidak butuh live streaming aktif dan tidak butuh thumbnail terpisah.';
     var pill = document.getElementById("imgModePill");
     if (pill) pill.textContent = (userImages.length ? "Mode: gambar upload (" + userImages.length + ")" : "Mode: desain otomatis") + (live ? " (thumbnail)" : " (video)");
@@ -624,9 +798,16 @@
   }
   function setMode(m){
     if (running){ showToast("Tunggu proses selesai dulu"); return; }
+    if (plRunning){ showToast("Tunggu proses playlist selesai dulu"); return; }
     if (m === appMode) return;
     appMode = m;
     lsSetRaw(LS_MODE, m);
+    if (m === "playlist"){
+      log("Mode diganti ke: Playlist.", "info");
+      applyModeUi();
+      updateGeneralUi();
+      return;
+    }
     // status lama milik mode sebelumnya tidak relevan lagi: baris yang belum sukses dikembalikan ke ready
     events.forEach(function(r){ if (r.status === "gagal" || r.status === "skip") { r.status = "ready"; r.message = ""; } });
     log("Mode diganti ke: " + (m === "live" ? "Jadwal Live" : "Upload Video") + ".", "info");
@@ -1245,6 +1426,7 @@
 
   function renderEventsTable(){
     saveState();
+    if (typeof updateCoverInfo === "function") updateCoverInfo();
     updateFixThumbsBtn();
     if (events.length === 0){
       el.emptyState.style.display = "block";
@@ -1367,7 +1549,7 @@
     el.pillClientId.textContent = "ClientID: " + (clientIds.length ? clientIds.length + " tersimpan" : "Belum");
     el.pillClientId.className = "pill" + (clientIds.length ? " ok" : "");
 
-    el.addAccountBtn.disabled = !gsiReady || clientIds.length === 0;
+    el.addAccountBtn.disabled = !clientIds.length;
 
     var activeCount = accounts.length;
     if (activeCount > 0){
@@ -1377,6 +1559,7 @@
     }
 
     renderAccountsList();
+    renderPlaylistAccountSelect();
     updateUploadBtnState();
   }
 
@@ -1429,7 +1612,8 @@
   function removeAccount(idx){
     if (running){ showToast("Tidak bisa hapus akun saat sedang upload"); return; }
     var acc = accounts[idx];
-    if (acc && acc.token && window.google){
+    if (!acc) return;
+    if (acc.token && window.google){
       try { window.google.accounts.oauth2.revoke(acc.token, function(){}); } catch (e){}
     }
     accounts.splice(idx, 1);
@@ -1825,7 +2009,7 @@
     setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
   }
 
-  // ================= GAMBAR -> VIDEO 40 DETIK (dirender per event) =================
+  // ================= GAMBAR -> VIDEO 5 DETIK (dirender per event) =================
   function isRecorderSupported(){
     return typeof MediaRecorder !== "undefined" && typeof HTMLCanvasElement !== "undefined" &&
            typeof HTMLCanvasElement.prototype.captureStream === "function";
@@ -1944,7 +2128,7 @@
     } catch (e){ cb("Gagal membuat thumbnail: " + (e.message || e)); }
   }
 
-  // Render satu video WebM 40 detik dari canvas. cb(err, blob).
+  // Render satu video WebM 5 detik dari canvas. cb(err, blob).
   function renderVideoForRow(row, cb){
     if (!isRecorderSupported()){
       cb("Browser ini tidak mendukung MediaRecorder/captureStream (coba Chrome/Edge/Firefox desktop atau Android).");
@@ -2268,7 +2452,8 @@
       }
       renderThumbnailForRow(row, function(err, blob){
         if (err){ log("✗ Gagal render thumbnail \"" + row.title + "\": " + err, "error"); failed++; i++; setTimeout(next, 500); return; }
-        setThumbnailWithRetry(row.videoId, acc.token, blob, row.title, function(err2, attempts){
+        ensureFreshToken(acc).then(function(freshToken){
+        setThumbnailWithRetry(row.videoId, freshToken, blob, row.title, function(err2, attempts){
           addClientQuotaUsage(acc.clientId, "live", (attempts || 1) * COST.live.thumb);
           if (err2){
             log("✗ Thumbnail \"" + row.title + "\" masih gagal: " + err2, "error");
@@ -2281,9 +2466,509 @@
           i++;
           setTimeout(next, 1500);   // jeda antar-perbaikan biar gak kena 429 lagi
         });
+        }).catch(function(err2){
+          log("✗ Thumbnail \"" + row.title + "\" gagal: token akun tidak bisa diperbarui (" + err2.message + ")", "error");
+          failed++; i++; setTimeout(next, 500);
+        });
       });
     }
     next();
+  }
+
+  // ================= MODE PLAYLIST =================
+  var plRunning = false;
+  var plLogBuffer = [];
+  function plAppendLogLine(ts, type, text){
+    var line = document.createElement("div");
+    line.className = "log-line " + type;
+    var t = document.createElement("span");
+    t.className = "t";
+    t.textContent = "[" + fmtTime(ts) + "]";
+    var msg = document.createElement("span");
+    msg.textContent = text;
+    line.appendChild(t);
+    line.appendChild(msg);
+    el.logBody2.appendChild(line);
+    el.logBody2.scrollTop = el.logBody2.scrollHeight;
+  }
+  function plLog(text, type){
+    type = type || "info";
+    var ts = Date.now();
+    plAppendLogLine(ts, type, text);
+    plLogBuffer.push({ t: ts, type: type, text: String(text) });
+    if (plLogBuffer.length > LOG_MAX) plLogBuffer = plLogBuffer.slice(plLogBuffer.length - LOG_MAX);
+  }
+  function plDownloadLog(){
+    if (plLogBuffer.length === 0){ showToast("Log masih kosong"); return; }
+    var lines = plLogBuffer.map(function(l){ return "[" + fmtDateTime(l.t) + "] [" + l.type.toUpperCase() + "] " + l.text; });
+    var header = "Log Playlist - diunduh " + fmtDateTime(Date.now()) + "\n" + new Array(60).join("-") + "\n";
+    var blob = new Blob([header + lines.join("\n") + "\n"], { type: "text/plain;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "log-playlist-" + new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-") + ".txt";
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+  }
+
+  function renderPlaylistAccountSelect(){
+    if (!el.plAccountSelect) return;
+    var prevVal = el.plAccountSelect.value;
+    if (!accounts.length){
+      el.plAccountSelect.innerHTML = '<option value="">(belum ada akun login)</option>';
+      return;
+    }
+    el.plAccountSelect.innerHTML = accounts.map(function(a, i){
+      return '<option value="' + i + '">' + escapeHtml(a.channelTitle || a.email || ("Akun " + (i + 1))) + '</option>';
+    }).join("");
+    if (prevVal !== "" && Number(prevVal) < accounts.length) el.plAccountSelect.value = prevVal;
+  }
+
+  // ================= IMPORT BANYAK PLAYLIST DARI CSV/EXCEL =================
+  // Format sederhana, TIDAK pakai parser event yang rumit (tidak perlu date/time/tz):
+  // header wajib: title,description,privacy (description & privacy boleh kosong -> default "" / "public").
+  var PLAYLIST_CSV_TEMPLATE =
+    'title,description,privacy\n' +
+    '"Kompilasi Sepak Bola Terbaik","Highlight pertandingan sepak bola pilihan",public\n' +
+    '"Podcast Bisnis Mingguan","Kumpulan episode podcast bisnis",public\n' +
+    '"Koleksi Pribadi","Playlist khusus, tidak untuk publik",unlisted\n';
+
+  var playlistRows = [];   // { _id, title, description, privacy, status, message, playlistId }
+  var MAX_PLAYLIST_ROWS = 30;
+
+  function downloadPlaylistCsvTemplate(){
+    showToast("Download template CSV playlist...");
+    var blob = new Blob([PLAYLIST_CSV_TEMPLATE], { type: "text/csv" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "template-playlist.csv";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function processPlaylistRows(rawRows, fileName){
+    var rows = [], skipped = 0;
+    rawRows.forEach(function(r){
+      var title = String(r.title || r.Title || "").trim();
+      if (!title) { skipped++; return; }
+      var privacy = String(r.privacy || r.Privacy || "public").trim().toLowerCase();
+      if (["public", "unlisted", "private"].indexOf(privacy) === -1) privacy = "public";
+      rows.push({
+        _id: genId(),
+        title: title,
+        description: String(r.description || r.Description || ""),
+        privacy: privacy,
+        status: "ready", message: "", playlistId: null
+      });
+    });
+    if (rows.length > MAX_PLAYLIST_ROWS){
+      plLog("⚠ File berisi " + rows.length + " baris, dipotong ke " + MAX_PLAYLIST_ROWS + " playlist pertama (batas aman per sesi).", "info");
+      rows = rows.slice(0, MAX_PLAYLIST_ROWS);
+    }
+    if (!rows.length){
+      showToast("Tidak ada baris valid (kolom 'title' wajib diisi)");
+      plLog("✗ Import playlist gagal: tidak ada baris dengan title terisi di " + fileName, "error");
+      return;
+    }
+    playlistRows = rows;
+    plLog("✓ " + rows.length + " playlist diimport dari " + fileName + (skipped ? " (" + skipped + " baris dilewati, title kosong)" : "") + ".", "success");
+    renderPlaylistRows();
+  }
+
+  // Format tanpa header (sama seperti tab Jadwal Live): kolom pertama = judul, kolom lain jadi deskripsi + hashtag.
+  // Dibaca pakai parser yang sama dengan tab live (parseHeaderlessRows); Date:/Time: tidak wajib untuk playlist.
+  function processPlaylistHeaderless(arrays, fileName){
+    var res = parseHeaderlessRows(arrays);
+    var privacy = (el.plPrivacySelect && el.plPrivacySelect.value) || "public";
+    var raw = res.rows.map(function(r){ return { title: r.title, description: r.description, privacy: privacy }; });
+    plLog("Format tanpa header terdeteksi (" + fileName + "): judul = kolom pertama, kolom lain jadi deskripsi playlist, privacy ikut pilihan \"Privacy Playlist\" (" + privacy + ").", "success");
+    processPlaylistRows(raw, fileName);
+  }
+
+  function handlePlaylistFile(fileList){
+    if (!fileList || !fileList.length) return;
+    var file = fileList[0];
+    var ext = (file.name.split(".").pop() || "").toLowerCase();
+    if (ext !== "csv" && ext !== "xlsx" && ext !== "xls"){ showToast("Format harus .csv / .xlsx / .xls"); return; }
+    if (ext === "csv"){
+      var reader = new FileReader();
+      reader.onload = function(e){
+        var records = parseCsvRecords(e.target.result);
+        if (records.length && !looksLikeHeaderRow(records[0])){ processPlaylistHeaderless(records, file.name); return; }
+        processPlaylistRows(parseCsvText(e.target.result), file.name);
+      };
+      reader.readAsText(file);
+    } else {
+      loadSheetJs(function(ok){
+        if (!ok || !window.XLSX){ showToast("SheetJS belum siap, coba lagi"); return; }
+        var reader = new FileReader();
+        reader.onload = function(e){
+          var data = new Uint8Array(e.target.result);
+          var wb = window.XLSX.read(data, { type: "array", cellDates: true });
+          var sheet = wb.Sheets[wb.SheetNames[0]];
+          var aoa = window.XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "", raw: false, blankrows: false });
+          if (aoa.length && !looksLikeHeaderRow(aoa[0])){ processPlaylistHeaderless(aoa, file.name); return; }
+          var rows = window.XLSX.utils.sheet_to_json(sheet, { defval: "", raw: false });
+          processPlaylistRows(rows, file.name);
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    }
+  }
+
+  function playlistStatusLabel(row){
+    if (row.status === "ready") return '<span style="color:var(--muted);">Menunggu</span>';
+    if (row.status === "loading") return '<span style="color:#60a5fa;">Membuat...</span>';
+    if (row.status === "sukses") return '<span style="color:#4ade80;">Sukses</span>';
+    return '<span style="color:#f87171;">Gagal</span>';
+  }
+
+  function renderPlaylistRows(){
+    if (!el.plRowsTable) return;
+    if (!playlistRows.length){
+      el.plRowsTable.style.display = "none";
+      el.plRowsTable.innerHTML = "";
+      el.plRowsSummary.textContent = "";
+      el.plClearRowsBtn.style.display = "none";
+      return;
+    }
+    el.plClearRowsBtn.style.display = "inline-block";
+    var okCount = playlistRows.filter(function(r){ return r.status === "sukses"; }).length;
+    el.plRowsSummary.textContent = playlistRows.length + " playlist siap dibuat" + (okCount ? " (" + okCount + " sudah sukses)" : "");
+    el.plRowsTable.style.display = "flex";
+    el.plRowsTable.innerHTML = playlistRows.map(function(r){
+      return '<div style="display:flex;justify-content:space-between;gap:10px;padding:8px;border:1px solid var(--border,#333);border-radius:8px;font-size:12px;">' +
+        '<div style="min-width:0;"><div style="font-weight:500;">' + escapeHtml(r.title) + '</div>' +
+        '<div style="color:var(--muted);">' + escapeHtml(r.privacy) + (r.message ? ' &bull; ' + escapeHtml(r.message) : '') + '</div></div>' +
+        '<div style="flex-shrink:0;">' + playlistStatusLabel(r) + '</div>' +
+        '</div>';
+    }).join("");
+  }
+
+  // Terima link youtube.com/watch?v=, youtu.be/, /live/, /shorts/, /embed/, atau videoId 11 karakter polos.
+  function extractVideoId(line){
+    var s = String(line || "").trim();
+    if (!s) return null;
+    var m = s.match(/[?&]v=([A-Za-z0-9_-]{11})/); if (m) return m[1];
+    m = s.match(/youtu\.be\/([A-Za-z0-9_-]{11})/); if (m) return m[1];
+    m = s.match(/\/(?:live|shorts|embed)\/([A-Za-z0-9_-]{11})/); if (m) return m[1];
+    m = s.match(/^([A-Za-z0-9_-]{11})$/); if (m) return m[1];
+    return null;
+  }
+  function parsePlaylistVideoLines(){
+    var lines = (el.plVideoListInput.value || "").split("\n").map(function(l){ return l.trim(); }).filter(Boolean);
+    var ids = [], bad = [];
+    lines.forEach(function(l){
+      var id = extractVideoId(l);
+      if (id) ids.push(id); else bad.push(l);
+    });
+    var seen = {}, uniq = [];
+    ids.forEach(function(id){ if (!seen[id]){ seen[id] = true; uniq.push(id); } });
+    return { ids: uniq, bad: bad };
+  }
+  function updatePlaylistVideoCount(){
+    if (!el.plVideoCountLabel) return;
+    var r = parsePlaylistVideoLines();
+    el.plVideoCountLabel.textContent = r.ids.length + " link terdeteksi" + (r.bad.length ? " (" + r.bad.length + " baris tidak dikenali)" : "");
+  }
+
+  function ytSearchVideos(token, query, cb){
+    var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=25&q=" + encodeURIComponent(query);
+    fetch(url, { headers: { "Authorization": "Bearer " + token } }).then(function(r){
+      return r.text().then(function(t){
+        if (!r.ok){
+          var c = classifyApiError(r.status, t);
+          cb(c.quota ? "kuota habis" : "gagal cari (" + r.status + "): " + t.slice(0, 200), null);
+          return;
+        }
+        var data; try { data = JSON.parse(t); } catch (e){ data = {}; }
+        var items = (data.items || []).map(function(it){
+          return {
+            videoId: it.id && it.id.videoId,
+            title: it.snippet && it.snippet.title,
+            channelTitle: it.snippet && it.snippet.channelTitle,
+            thumb: it.snippet && it.snippet.thumbnails && (it.snippet.thumbnails.default || {}).url
+          };
+        }).filter(function(it){ return it.videoId; });
+        cb(null, items);
+      });
+    }).catch(function(e){ cb(e.message || String(e), null); });
+  }
+
+  function renderSearchResults(items){
+    if (!items.length){
+      el.plSearchResults.style.display = "none";
+      el.plAddSelectedBtn.style.display = "none";
+      showToast("Tidak ada hasil untuk kata kunci itu");
+      return;
+    }
+    el.plSearchResults.innerHTML = items.map(function(it, i){
+      return '<label style="display:flex;gap:10px;align-items:flex-start;padding:8px;border:1px solid var(--border,#333);border-radius:8px;cursor:pointer;">' +
+        '<input type="checkbox" class="plSearchChk" value="' + escapeHtml(it.videoId) + '" style="margin-top:4px;flex-shrink:0;">' +
+        (it.thumb ? '<img src="' + escapeHtml(it.thumb) + '" style="width:64px;height:48px;object-fit:cover;border-radius:4px;flex-shrink:0;">' : '') +
+        '<span style="min-width:0;"><div style="font-size:12px;font-weight:500;">' + escapeHtml(it.title || "(tanpa judul)") + '</div>' +
+        '<div style="font-size:11px;color:var(--muted);">' + escapeHtml(it.channelTitle || "") + '</div></span>' +
+        '</label>';
+    }).join("");
+    el.plSearchResults.style.display = "flex";
+    el.plAddSelectedBtn.style.display = "block";
+  }
+
+  function runPlaylistSearch(){
+    var idx = el.plAccountSelect.value;
+    if (idx === "" || idx === null || !accounts[idx]){ showToast("Pilih akun dulu (dipakai buat token pencarian)"); return; }
+    var q = (el.plSearchInput.value || "").trim();
+    if (!q){ showToast("Isi kata kunci dulu"); return; }
+    var acc = accounts[idx];
+    el.plSearchBtn.disabled = true;
+    el.plSearchBtn.textContent = "Mencari...";
+    plLog("Mencari video: \"" + q + "\"...", "info");
+    ensureFreshToken(acc).then(function(token){
+      ytSearchVideos(token, q, function(err, items){
+        el.plSearchBtn.disabled = false;
+        el.plSearchBtn.textContent = "Cari";
+        if (err){ plLog("✗ Pencarian gagal: " + err, "error"); showToast("Pencarian gagal"); return; }
+        addClientQuotaUsage(acc.clientId, "live", 100);
+        plLog("✓ Ditemukan " + items.length + " video untuk \"" + q + "\".", "success");
+        renderSearchResults(items);
+      });
+    }).catch(function(e){
+      el.plSearchBtn.disabled = false;
+      el.plSearchBtn.textContent = "Cari";
+      plLog("✗ Token akun gagal diperbarui: " + e.message, "error");
+    });
+  }
+
+  function appendSelectedSearchResults(){
+    var boxes = el.plSearchResults.querySelectorAll(".plSearchChk:checked");
+    if (!boxes.length){ showToast("Belum ada yang dicentang"); return; }
+    var existing = (el.plVideoListInput.value || "").split("\n").map(function(l){ return l.trim(); }).filter(Boolean);
+    var existingIds = {};
+    existing.forEach(function(l){ var id = extractVideoId(l); if (id) existingIds[id] = true; });
+    var added = 0;
+    Array.prototype.forEach.call(boxes, function(b){
+      if (existingIds[b.value]) return;
+      existing.push("https://www.youtube.com/watch?v=" + b.value);
+      existingIds[b.value] = true;
+      added++;
+    });
+    el.plVideoListInput.value = existing.join("\n");
+    updatePlaylistVideoCount();
+    showToast(added + " video ditambahkan ke daftar" + (added < boxes.length ? " (" + (boxes.length - added) + " sudah ada)" : ""));
+  }
+
+  function ytPlaylistInsert(token, title, desc, privacy, cb){
+    fetch("https://www.googleapis.com/youtube/v3/playlists?part=snippet,status", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        snippet: { title: title, description: desc || "" },
+        status: { privacyStatus: privacy }
+      })
+    }).then(function(r){
+      return r.text().then(function(t){
+        if (!r.ok){
+          var c = classifyApiError(r.status, t);
+          cb(c.quota ? "kuota habis" : "gagal bikin playlist (" + r.status + "): " + t.slice(0, 200), null);
+          return;
+        }
+        var data; try { data = JSON.parse(t); } catch (e){ data = {}; }
+        cb(null, data.id);
+      });
+    }).catch(function(e){ cb(e.message || String(e), null); });
+  }
+
+  function ytPlaylistItemInsertWithRetry(playlistId, videoId, token, cb){
+    var attempt = 0, MAX_ATTEMPTS = 3;
+    var tryOnce = function(){
+      attempt++;
+      fetch("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet", {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+        body: JSON.stringify({ snippet: { playlistId: playlistId, resourceId: { kind: "youtube#video", videoId: videoId } } })
+      }).then(function(r){
+        if (r.ok){ cb(null, attempt); return; }
+        return r.text().then(function(t){
+          if (r.status === 429 && attempt < MAX_ATTEMPTS){
+            var delayMs = attempt === 1 ? 4000 : 10000;
+            plLog("⏳ Video " + videoId + " kena rate limit (429), coba lagi dalam " + (delayMs / 1000) + " detik...", "info");
+            setTimeout(tryOnce, delayMs);
+            return;
+          }
+          var c = classifyApiError(r.status, t);
+          var msg = c.quota ? "kuota habis" : (r.status === 404 ? "video tidak ditemukan/dihapus" : (r.status === 403 ? "ditolak (403, video private atau dibatasi pemiliknya)" : "gagal (" + r.status + ")"));
+          cb(msg, attempt);
+        });
+      }).catch(function(e){ cb(e.message || String(e), attempt); });
+    };
+    tryOnce();
+  }
+
+  function finishPlaylistRun(okVideos, failVideos, okPlaylists, failPlaylists){
+    plRunning = false;
+    el.buildPlaylistBtn.disabled = false;
+    el.buildPlaylistBtn.textContent = "BUAT SEMUA PLAYLIST & ISI VIDEO";
+    el.plProgressWrap.style.display = "none";
+    var plSummary = okPlaylists + " playlist dibuat" + (failPlaylists ? ", " + failPlaylists + " gagal" : "");
+    plLog("Selesai: " + plSummary + ". Total " + okVideos + " video berhasil ditambahkan" + (failVideos ? ", " + failVideos + " gagal" : "") + ".", okPlaylists ? "success" : "error");
+    showToast(plSummary);
+    renderClientIds();
+    renderPlaylistRows();
+    playlistRows.filter(function(r){ return r.status === "sukses" && r.playlistId; }).forEach(function(r){
+      plLog("Link playlist \"" + r.title + "\": https://www.youtube.com/playlist?list=" + r.playlistId, "info");
+    });
+  }
+
+  // ---- Cover playlist = event live dari Excel ----
+  // Event yang layak jadi cover: valid, jadwal belum lewat, dan belum pernah dibuat (status ready/gagal).
+  function eligibleCoverEvents(){
+    return events.filter(function(e){
+      return !e._invalid && !e._pastDate && (e.status === "ready" || e.status === "gagal");
+    });
+  }
+  function updateCoverInfo(){
+    if (!el.plCoverInfo) return;
+    var n = eligibleCoverEvents().length;
+    el.plCoverInfo.textContent = n + " event dari Excel siap jadi cover (belum dibuat, jadwal belum lewat)" +
+      (n ? "" : " \u2014 upload Excel dulu lewat tombol di atas");
+  }
+  // Buat 1 event live pakai akun & token pemilik playlist. cb(errText|null, videoId)
+  function createCoverLive(acc, token, row, cb){
+    row.status = "loading"; renderEventsTable();
+    createLiveEvent(row, token, null, function(res){
+      if (res.ok){
+        row.status = "sukses"; row.videoId = res.videoId; row.mode = "live";
+        row.message = "Jadwal live dibuat (cover playlist)";
+        row.uploadedVia = acc.channelTitle || acc.email;
+        acc.usedCount++; acc.usedDay = pacificDateKey();
+        addClientQuotaUsage(acc.clientId, "live", res.unitsUsed);
+        persistAccounts(); saveStateNow(); renderEventsTable();
+        cb(null, res.videoId);
+      } else {
+        row.status = res.skipped ? "skip" : "gagal";
+        row.message = res.error || "gagal";
+        saveStateNow(); renderEventsTable();
+        cb(res.error || "gagal membuat event live", null);
+      }
+    });
+  }
+
+  // Bikin SEMUA playlist di playlistRows (dari CSV) satu-satu, dan untuk tiap playlist yang berhasil dibuat,
+  // tambahkan SEMUA video di daftar link (parsed.ids) ke situ -> video yang dicentang/ditambahkan
+  // otomatis masuk ke SEMUA playlist, bukan cuma 1.
+  function runPlaylistBuild(){
+    if (plRunning){ showToast("Sedang berjalan, tunggu selesai"); return; }
+    var idx = el.plAccountSelect.value;
+    if (idx === "" || idx === null || !accounts[idx]){ showToast("Pilih akun dulu (login akun di Setup Koneksi kalau daftar kosong)"); return; }
+    var acc = accounts[idx];
+    var parsed = parsePlaylistVideoLines();
+    if (!parsed.ids.length){ showToast("Belum ada link video yang valid di daftar"); return; }
+
+    // Sumber daftar playlist: CSV yang diimport (kalau ada), atau fallback 1 playlist dari field manual.
+    var rows = playlistRows;
+    if (!rows.length){
+      var title = (el.plTitleInput.value || "").trim();
+      if (!title){ showToast("Isi Judul Playlist, atau import CSV playlist dulu"); return; }
+      rows = [{ _id: genId(), title: title, description: el.plDescInput.value || "", privacy: el.plPrivacySelect.value || "public", status: "ready", message: "", playlistId: null }];
+      playlistRows = rows;   // supaya kelihatan progressnya juga di tabel
+    }
+    rows.forEach(function(r){ r.status = "ready"; r.message = ""; r.playlistId = r.playlistId || null; });
+    renderPlaylistRows();
+
+    var useCover = !!(el.plCoverChk && el.plCoverChk.checked);
+    var coverPool = useCover ? eligibleCoverEvents() : [];
+    if (useCover && coverPool.length < rows.length){
+      var msgC = "Butuh " + rows.length + " event cover dari Excel, tapi hanya ada " + coverPool.length + " yang siap. Upload Excel dulu / kurangi playlist / matikan centang cover.";
+      plLog("✗ " + msgC, "error"); showToast(msgC);
+      return;
+    }
+    var estUnits = rows.length * (COST.live.insert + parsed.ids.length * COST.live.thumb) +
+      (useCover ? rows.length * (COST.live.insert + COST.live.thumb) : 0);
+    plLog("Memulai: " + rows.length + " playlist &times; " + parsed.ids.length + " video = perkiraan " + estUnits + " unit kuota via " + (acc.channelTitle || acc.email) + "...", "info");
+    if (parsed.bad.length) plLog("⚠ " + parsed.bad.length + " baris tidak dikenali sebagai link/ID video, dilewati: " + parsed.bad.slice(0, 5).join(" | "), "info");
+
+    plRunning = true;
+    el.buildPlaylistBtn.disabled = true;
+    el.buildPlaylistBtn.textContent = "MEMPROSES...";
+    el.plProgressWrap.style.display = "block";
+    var perRow = 1 + parsed.ids.length + (useCover ? 2 : 0);
+    var totalSteps = rows.length * perRow;
+    var stepsDone = 0;
+    var okVideos = 0, failVideos = 0, okPlaylists = 0, failPlaylists = 0;
+
+    function updateProgress(){
+      el.plProgressLabel.textContent = stepsDone + "/" + totalSteps;
+      el.plProgressFill.style.width = Math.round(stepsDone / totalSteps * 100) + "%";
+    }
+    updateProgress();
+
+    ensureFreshToken(acc).then(function(token){
+      var ri = 0;
+      function nextRow(){
+        if (ri >= rows.length){ finishPlaylistRun(okVideos, failVideos, okPlaylists, failPlaylists); return; }
+        var row = rows[ri];
+        stepsDone = ri * perRow; updateProgress();
+        row.status = "loading";
+        renderPlaylistRows();
+        var coverEvent = useCover ? coverPool[ri] : null;
+        if (coverEvent){
+          plLog("Membuat event live cover \"" + coverEvent.title + "\" untuk playlist \"" + row.title + "\"...", "info");
+        }
+        function buildAfterCover(coverVideoId){
+        var idsForRow = coverVideoId ? [coverVideoId].concat(parsed.ids.filter(function(x){ return x !== coverVideoId; })) : parsed.ids;
+        plLog("Membuat playlist \"" + row.title + "\" (" + row.privacy + ")...", "info");
+        ytPlaylistInsert(token, row.title, row.description, row.privacy, function(err, playlistId){
+          stepsDone++; updateProgress();
+          if (err){
+            row.status = "gagal"; row.message = err; failPlaylists++;
+            plLog("✗ Gagal bikin playlist \"" + row.title + "\": " + err, "error");
+            renderPlaylistRows();
+            ri++; setTimeout(nextRow, 500);
+            return;
+          }
+          addClientQuotaUsage(acc.clientId, "live", COST.live.insert);
+          row.playlistId = playlistId; okPlaylists++;
+          plLog("✓ Playlist \"" + row.title + "\" dibuat: " + playlistId, "success");
+          var vi = 0;
+          function nextVideo(){
+            if (vi >= idsForRow.length){
+              row.status = "sukses";
+              renderPlaylistRows();
+              ri++; setTimeout(nextRow, 500);
+              return;
+            }
+            var vid = idsForRow[vi];
+            ytPlaylistItemInsertWithRetry(playlistId, vid, token, function(err2, attempts){
+              addClientQuotaUsage(acc.clientId, "live", (attempts || 1) * COST.live.thumb);
+              var isCover = coverVideoId && vid === coverVideoId;
+              if (err2){ plLog("✗ [" + row.title + "] " + (isCover ? "(cover) " : "") + vid + ": " + err2, "error"); failVideos++; }
+              else { plLog("✓ [" + row.title + "] " + (isCover ? "(cover) " : "") + vid + " ditambahkan.", "success"); okVideos++; }
+              vi++; stepsDone++; updateProgress();
+              setTimeout(nextVideo, 1200);
+            });
+          }
+          nextVideo();
+        });
+        }   // akhir buildAfterCover
+        if (!coverEvent){ buildAfterCover(null); return; }
+        createCoverLive(acc, token, coverEvent, function(errC, coverVideoId){
+          stepsDone++; updateProgress();
+          if (errC){
+            row.status = "gagal"; row.message = "event live cover gagal: " + errC; failPlaylists++;
+            plLog("✗ Event live cover gagal (\"" + coverEvent.title + "\"): " + errC + " -> playlist \"" + row.title + "\" TIDAK dibuat.", "error");
+            renderPlaylistRows();
+            ri++; setTimeout(nextRow, 500);
+            return;
+          }
+          plLog("✓ Event live cover dibuat: " + coverVideoId, "success");
+          buildAfterCover(coverVideoId);
+        });
+      }
+      nextRow();
+    }).catch(function(e){
+      plLog("✗ Token akun gagal diperbarui: " + e.message, "error");
+      finishPlaylistRun(0, 0, 0, 0);
+    });
   }
 
   // ================= UPLOAD KE YOUTUBE (videos.insert) =================
@@ -2517,8 +3202,9 @@
             return;
           }
         }
+        ensureFreshToken(acc).then(function(freshToken){
         var sender = appMode === "live" ? createLiveEvent : uploadOneEvent;
-        sender(row, acc.token, blob, function(res){
+        sender(row, freshToken, blob, function(res){
           if (res.skipped){
             row.status = "skip";
             row.message = res.error;
@@ -2582,6 +3268,13 @@
             idx++;
             advance();
           }
+        });
+        }).catch(function(err){
+          row.status = "ready";
+          log("Token akun " + (acc.channelTitle || acc.email) + " gagal diperbarui: " + err.message, "error");
+          acc.needsRelogin = true;
+          activeAccountIndex++;
+          advance(); // idx TIDAK bertambah, baris ini diulang nanti di akun berikutnya
         });
       });
     }
@@ -2829,6 +3522,22 @@
   el.reloginAllBtn.addEventListener("click", reloginAllExpired);
   el.modeVideoBtn.addEventListener("click", function(){ setMode("video"); });
   el.modeLiveBtn.addEventListener("click", function(){ setMode("live"); });
+  el.modePlaylistBtn.addEventListener("click", function(){ setMode("playlist"); });
+  el.buildPlaylistBtn.addEventListener("click", runPlaylistBuild);
+  if (el.plCoverPickBtn) el.plCoverPickBtn.addEventListener("click", function(){ el.plCoverFileInput.click(); });
+  if (el.plCoverFileInput) el.plCoverFileInput.addEventListener("change", function(e){ handleFiles(e.target.files); e.target.value = ""; setTimeout(updateCoverInfo, 600); });
+  el.plSearchBtn.addEventListener("click", runPlaylistSearch);
+  el.plAddSelectedBtn.addEventListener("click", appendSelectedSearchResults);
+  el.plVideoListInput.addEventListener("input", updatePlaylistVideoCount);
+  if (el.plPickFileBtn) el.plPickFileBtn.addEventListener("click", function(){ el.plCsvFileInput.click(); });
+  if (el.plCsvFileInput) el.plCsvFileInput.addEventListener("change", function(e){ handlePlaylistFile(e.target.files); e.target.value = ""; });
+  if (el.plDownloadTemplateBtn) el.plDownloadTemplateBtn.addEventListener("click", downloadPlaylistCsvTemplate);
+  if (el.plClearRowsBtn) el.plClearRowsBtn.addEventListener("click", function(){ playlistRows = []; renderPlaylistRows(); showToast("Daftar playlist CSV dikosongkan"); });
+  el.clearLogBtn2.addEventListener("click", function(){
+    el.logBody2.innerHTML = "";
+    plLogBuffer = [];
+  });
+  el.downloadLogBtn2.addEventListener("click", plDownloadLog);
 
   applyModeUi();
   renderClientIds();
