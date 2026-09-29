@@ -410,7 +410,6 @@
         <input type="file" id="plCsvFileInput" accept=".csv,.xlsx,.xls" style="display:none;">
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
           <button class="btn-white" id="plPickFileBtn" style="flex:1;min-width:160px;">Pilih File CSV/Excel Playlist</button>
-          <button class="btn-ghost" id="plDownloadTemplateBtn" style="flex-shrink:0;">Download Template</button>
           <button class="btn-ghost" id="plClearRowsBtn" style="flex-shrink:0;display:none;">Clear</button>
         </div>
         <div id="plRowsSummary" style="margin-top:8px;font-size:12px;color:var(--muted);"></div>
@@ -448,26 +447,17 @@
       </div>
 
       <div class="field" style="margin-top:14px;">
+        <label>Link Video Cover Playlist</label>
+        <input type="text" id="plCoverListInput" style="width:100%;font-family:monospace;font-size:12px;" placeholder="https://www.youtube.com/watch?v=xxxxxxxxxxx">
+        <div class="small" style="color:var(--muted);margin-top:6px;" id="plCoverCountLabel">Belum ada link cover</div>
+        <div class="small" style="color:var(--muted);margin-top:4px;">Satu link cover ini dipakai untuk <b>SEMUA</b> playlist. Video cover dimasukkan sebagai video <b>pertama</b> di tiap playlist, jadi otomatis jadi cover. Kosongkan kalau tidak pakai cover.</div>
+      </div>
+
+      <div class="field" style="margin-top:14px;">
         <label>Daftar Link Video (satu link/ID per baris)</label>
         <textarea id="plVideoListInput" rows="8" style="width:100%;padding:10px;font-family:monospace;font-size:12px;" placeholder="https://www.youtube.com/watch?v=xxxxxxxxxxx&#10;https://youtu.be/yyyyyyyyyyy&#10;https://www.youtube.com/live/zzzzzzzzzzz"></textarea>
         <div class="small" style="color:var(--muted);margin-top:6px;" id="plVideoCountLabel">0 link terdeteksi</div>
         <div class="small" style="color:var(--muted);margin-top:4px;">Video di daftar ini akan ditambahkan ke <b>SEMUA</b> playlist yang dibuat &mdash; baik dari CSV maupun manual.</div>
-      </div>
-
-      <div class="field" style="margin-top:14px;padding:12px;border:1px solid var(--border,#333);border-radius:10px;">
-        <label style="display:flex;gap:8px;align-items:center;cursor:pointer;">
-          <input type="checkbox" id="plCoverChk" checked> Pakai event live sebagai cover playlist
-        </label>
-        <div class="small" style="color:var(--muted);margin-top:6px;">
-          Sebelum tiap playlist dibuat, tool membuat <b>1 event live</b> dari baris Excel (akun yang sama dengan pemilik playlist), lalu event itu dimasukkan
-          sebagai video <b>pertama</b> di playlist, jadi otomatis jadi cover. Kalau event live gagal dibuat, playlist itu <b>tidak dibuat</b>.
-          Tiap playlist memakai 1 baris Excel yang belum dibuat (berurutan). Biaya tambahan: 100 unit per playlist.
-        </div>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
-          <button class="btn-white" id="plCoverPickBtn" style="flex:1;min-width:160px;">Upload Excel Event Cover</button>
-          <input type="file" id="plCoverFileInput" accept=".csv,.xlsx,.xls" style="display:none;">
-        </div>
-        <div class="small" id="plCoverInfo" style="margin-top:8px;color:var(--muted);">0 event dari Excel</div>
       </div>
 
       <button class="btn-primary" id="buildPlaylistBtn" style="width:100%;margin-top:16px;">BUAT SEMUA PLAYLIST &amp; ISI VIDEO</button>
@@ -659,7 +649,6 @@
     plAccountSelect: document.getElementById("plAccountSelect"),
     plCsvFileInput: document.getElementById("plCsvFileInput"),
     plPickFileBtn: document.getElementById("plPickFileBtn"),
-    plDownloadTemplateBtn: document.getElementById("plDownloadTemplateBtn"),
     plClearRowsBtn: document.getElementById("plClearRowsBtn"),
     plRowsSummary: document.getElementById("plRowsSummary"),
     plRowsTable: document.getElementById("plRowsTable"),
@@ -673,10 +662,8 @@
     plSearchResults: document.getElementById("plSearchResults"),
     plAddSelectedBtn: document.getElementById("plAddSelectedBtn"),
     buildPlaylistBtn: document.getElementById("buildPlaylistBtn"),
-    plCoverChk: document.getElementById("plCoverChk"),
-    plCoverPickBtn: document.getElementById("plCoverPickBtn"),
-    plCoverFileInput: document.getElementById("plCoverFileInput"),
-    plCoverInfo: document.getElementById("plCoverInfo"),
+    plCoverListInput: document.getElementById("plCoverListInput"),
+    plCoverCountLabel: document.getElementById("plCoverCountLabel"),
     plProgressWrap: document.getElementById("plProgressWrap"),
     plProgressLabel: document.getElementById("plProgressLabel"),
     plProgressFill: document.getElementById("plProgressFill"),
@@ -780,7 +767,6 @@
     el.playlistWrap.style.display = playlist ? "" : "none";
     if (playlist){
       renderPlaylistAccountSelect();
-      if (typeof updateCoverInfo === "function") updateCoverInfo();
       el.modeNote.innerHTML = '<b>Mode Playlist.</b> Bikin playlist baru di channel kamu lalu isi dengan video &mdash; video kamu sendiri atau video publik orang lain yang sejenis. ' +
         'Scroll ke bawah ke card <b>&ldquo;Bikin / Isi Playlist&rdquo;</b> untuk pilih akun, isi judul playlist, cari video by kata kunci, atau tempel link video manual.';
       return;
@@ -1426,7 +1412,6 @@
 
   function renderEventsTable(){
     saveState();
-    if (typeof updateCoverInfo === "function") updateCoverInfo();
     updateFixThumbsBtn();
     if (events.length === 0){
       el.emptyState.style.display = "block";
@@ -2585,9 +2570,11 @@
     processPlaylistRows(raw, fileName);
   }
 
+  var lastPlaylistFile = null;
   function handlePlaylistFile(fileList){
     if (!fileList || !fileList.length) return;
     var file = fileList[0];
+    lastPlaylistFile = file;
     var ext = (file.name.split(".").pop() || "").toLowerCase();
     if (ext !== "csv" && ext !== "xlsx" && ext !== "xls"){ showToast("Format harus .csv / .xlsx / .xls"); return; }
     if (ext === "csv"){
@@ -2665,6 +2652,20 @@
     var seen = {}, uniq = [];
     ids.forEach(function(id){ if (!seen[id]){ seen[id] = true; uniq.push(id); } });
     return { ids: uniq, bad: bad };
+  }
+  function parsePlaylistCoverLines(){
+    var lines = (el.plCoverListInput.value || "").split("\n").map(function(l){ return l.trim(); }).filter(Boolean).slice(0, 1);
+    var ids = [], bad = [];
+    lines.forEach(function(l){
+      var id = extractVideoId(l);
+      if (id) ids.push(id); else bad.push(l);
+    });
+    return { ids: ids, bad: bad };
+  }
+  function updatePlaylistCoverCount(){
+    if (!el.plCoverCountLabel) return;
+    var r = parsePlaylistCoverLines();
+    el.plCoverCountLabel.textContent = r.ids.length ? "Link cover valid (ID: " + r.ids[0] + ")" : (r.bad.length ? "Link cover tidak dikenali" : "Belum ada link cover");
   }
   function updatePlaylistVideoCount(){
     if (!el.plVideoCountLabel) return;
@@ -2819,40 +2820,6 @@
     });
   }
 
-  // ---- Cover playlist = event live dari Excel ----
-  // Event yang layak jadi cover: valid, jadwal belum lewat, dan belum pernah dibuat (status ready/gagal).
-  function eligibleCoverEvents(){
-    return events.filter(function(e){
-      return !e._invalid && !e._pastDate && (e.status === "ready" || e.status === "gagal");
-    });
-  }
-  function updateCoverInfo(){
-    if (!el.plCoverInfo) return;
-    var n = eligibleCoverEvents().length;
-    el.plCoverInfo.textContent = n + " event dari Excel siap jadi cover (belum dibuat, jadwal belum lewat)" +
-      (n ? "" : " \u2014 upload Excel dulu lewat tombol di atas");
-  }
-  // Buat 1 event live pakai akun & token pemilik playlist. cb(errText|null, videoId)
-  function createCoverLive(acc, token, row, cb){
-    row.status = "loading"; renderEventsTable();
-    createLiveEvent(row, token, null, function(res){
-      if (res.ok){
-        row.status = "sukses"; row.videoId = res.videoId; row.mode = "live";
-        row.message = "Jadwal live dibuat (cover playlist)";
-        row.uploadedVia = acc.channelTitle || acc.email;
-        acc.usedCount++; acc.usedDay = pacificDateKey();
-        addClientQuotaUsage(acc.clientId, "live", res.unitsUsed);
-        persistAccounts(); saveStateNow(); renderEventsTable();
-        cb(null, res.videoId);
-      } else {
-        row.status = res.skipped ? "skip" : "gagal";
-        row.message = res.error || "gagal";
-        saveStateNow(); renderEventsTable();
-        cb(res.error || "gagal membuat event live", null);
-      }
-    });
-  }
-
   // Bikin SEMUA playlist di playlistRows (dari CSV) satu-satu, dan untuk tiap playlist yang berhasil dibuat,
   // tambahkan SEMUA video di daftar link (parsed.ids) ke situ -> video yang dicentang/ditambahkan
   // otomatis masuk ke SEMUA playlist, bukan cuma 1.
@@ -2862,7 +2829,8 @@
     if (idx === "" || idx === null || !accounts[idx]){ showToast("Pilih akun dulu (login akun di Setup Koneksi kalau daftar kosong)"); return; }
     var acc = accounts[idx];
     var parsed = parsePlaylistVideoLines();
-    if (!parsed.ids.length){ showToast("Belum ada link video yang valid di daftar"); return; }
+    var coverParsed = parsePlaylistCoverLines();
+    if (!parsed.ids.length && !coverParsed.ids.length){ showToast("Belum ada link video / cover yang valid"); return; }
 
     // Sumber daftar playlist: CSV yang diimport (kalau ada), atau fallback 1 playlist dari field manual.
     var rows = playlistRows;
@@ -2875,23 +2843,21 @@
     rows.forEach(function(r){ r.status = "ready"; r.message = ""; r.playlistId = r.playlistId || null; });
     renderPlaylistRows();
 
-    var useCover = !!(el.plCoverChk && el.plCoverChk.checked);
-    var coverPool = useCover ? eligibleCoverEvents() : [];
-    if (useCover && coverPool.length < rows.length){
-      var msgC = "Butuh " + rows.length + " event cover dari Excel, tapi hanya ada " + coverPool.length + " yang siap. Upload Excel dulu / kurangi playlist / matikan centang cover.";
-      plLog("✗ " + msgC, "error"); showToast(msgC);
-      return;
-    }
-    var estUnits = rows.length * (COST.live.insert + parsed.ids.length * COST.live.thumb) +
-      (useCover ? rows.length * (COST.live.insert + COST.live.thumb) : 0);
-    plLog("Memulai: " + rows.length + " playlist &times; " + parsed.ids.length + " video = perkiraan " + estUnits + " unit kuota via " + (acc.channelTitle || acc.email) + "...", "info");
+    // Cover: 1 link dipakai untuk semua playlist.
+    var coverIds = coverParsed.ids;
+    function coverFor(ri){ return coverIds.length ? coverIds[0] : null; }
+    var coverCount = 0;
+    for (var ci = 0; ci < rows.length; ci++) if (coverFor(ci)) coverCount++;
+    var estUnits = rows.length * COST.live.insert + (rows.length * parsed.ids.length + coverCount) * COST.live.thumb;
+    plLog("Memulai: " + rows.length + " playlist &times; " + parsed.ids.length + " video" + (coverCount ? " + " + coverCount + " cover" : "") + " = perkiraan " + estUnits + " unit kuota via " + (acc.channelTitle || acc.email) + "...", "info");
     if (parsed.bad.length) plLog("⚠ " + parsed.bad.length + " baris tidak dikenali sebagai link/ID video, dilewati: " + parsed.bad.slice(0, 5).join(" | "), "info");
+    if (coverParsed.bad.length) plLog("⚠ " + coverParsed.bad.length + " baris cover tidak dikenali, dilewati: " + coverParsed.bad.slice(0, 5).join(" | "), "info");
 
     plRunning = true;
     el.buildPlaylistBtn.disabled = true;
     el.buildPlaylistBtn.textContent = "MEMPROSES...";
     el.plProgressWrap.style.display = "block";
-    var perRow = 1 + parsed.ids.length + (useCover ? 2 : 0);
+    var perRow = 1 + parsed.ids.length + (coverCount ? 1 : 0);
     var totalSteps = rows.length * perRow;
     var stepsDone = 0;
     var okVideos = 0, failVideos = 0, okPlaylists = 0, failPlaylists = 0;
@@ -2910,11 +2876,8 @@
         stepsDone = ri * perRow; updateProgress();
         row.status = "loading";
         renderPlaylistRows();
-        var coverEvent = useCover ? coverPool[ri] : null;
-        if (coverEvent){
-          plLog("Membuat event live cover \"" + coverEvent.title + "\" untuk playlist \"" + row.title + "\"...", "info");
-        }
-        function buildAfterCover(coverVideoId){
+        var coverVideoId = coverFor(ri);
+        (function buildWithCover(){
         var idsForRow = coverVideoId ? [coverVideoId].concat(parsed.ids.filter(function(x){ return x !== coverVideoId; })) : parsed.ids;
         plLog("Membuat playlist \"" + row.title + "\" (" + row.privacy + ")...", "info");
         ytPlaylistInsert(token, row.title, row.description, row.privacy, function(err, playlistId){
@@ -2949,20 +2912,7 @@
           }
           nextVideo();
         });
-        }   // akhir buildAfterCover
-        if (!coverEvent){ buildAfterCover(null); return; }
-        createCoverLive(acc, token, coverEvent, function(errC, coverVideoId){
-          stepsDone++; updateProgress();
-          if (errC){
-            row.status = "gagal"; row.message = "event live cover gagal: " + errC; failPlaylists++;
-            plLog("✗ Event live cover gagal (\"" + coverEvent.title + "\"): " + errC + " -> playlist \"" + row.title + "\" TIDAK dibuat.", "error");
-            renderPlaylistRows();
-            ri++; setTimeout(nextRow, 500);
-            return;
-          }
-          plLog("✓ Event live cover dibuat: " + coverVideoId, "success");
-          buildAfterCover(coverVideoId);
-        });
+        })();   // akhir buildWithCover
       }
       nextRow();
     }).catch(function(e){
@@ -3524,14 +3474,12 @@
   el.modeLiveBtn.addEventListener("click", function(){ setMode("live"); });
   el.modePlaylistBtn.addEventListener("click", function(){ setMode("playlist"); });
   el.buildPlaylistBtn.addEventListener("click", runPlaylistBuild);
-  if (el.plCoverPickBtn) el.plCoverPickBtn.addEventListener("click", function(){ el.plCoverFileInput.click(); });
-  if (el.plCoverFileInput) el.plCoverFileInput.addEventListener("change", function(e){ handleFiles(e.target.files); e.target.value = ""; setTimeout(updateCoverInfo, 600); });
   el.plSearchBtn.addEventListener("click", runPlaylistSearch);
   el.plAddSelectedBtn.addEventListener("click", appendSelectedSearchResults);
   el.plVideoListInput.addEventListener("input", updatePlaylistVideoCount);
+  el.plCoverListInput.addEventListener("input", updatePlaylistCoverCount);
   if (el.plPickFileBtn) el.plPickFileBtn.addEventListener("click", function(){ el.plCsvFileInput.click(); });
   if (el.plCsvFileInput) el.plCsvFileInput.addEventListener("change", function(e){ handlePlaylistFile(e.target.files); e.target.value = ""; });
-  if (el.plDownloadTemplateBtn) el.plDownloadTemplateBtn.addEventListener("click", downloadPlaylistCsvTemplate);
   if (el.plClearRowsBtn) el.plClearRowsBtn.addEventListener("click", function(){ playlistRows = []; renderPlaylistRows(); showToast("Daftar playlist CSV dikosongkan"); });
   el.clearLogBtn2.addEventListener("click", function(){
     el.logBody2.innerHTML = "";
