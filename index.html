@@ -337,6 +337,19 @@
 
         <button class="btn-ghost" id="fixThumbsBtn" style="display:none;width:100%;margin-bottom:14px;">Perbaiki Thumbnail Gagal</button>
 
+        <div id="exportWrap" style="display:none;margin-bottom:14px;padding:12px;border:1px solid var(--border);border-radius:12px;">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Hasil Upload: ID, Link &amp; Channel <span id="exportCountLabel" style="font-weight:400;color:var(--muted);"></span></div>
+          <div class="small" style="color:var(--muted);margin-bottom:10px;">
+            CSV berisi <code class="inline">videoId</code>, judul, jadwal, jenis, link, nama channel &amp; ID channel. File "ID Event" bisa langsung dipilih di Tool 2 (Langkah 1).
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-white" id="exportIdsBtn" style="flex:1;min-width:170px;">&#8595; Unduh ID Event (Tool 2)</button>
+            <button class="btn-ghost" id="exportAllBtn" style="flex:1;min-width:170px;">&#8595; Unduh Semua Hasil</button>
+            <button class="btn-ghost" id="copyIdsBtn" style="flex:1;min-width:110px;">Salin ID</button>
+            <button class="btn-ghost" id="copyLinksBtn" style="flex:1;min-width:110px;">Salin Link</button>
+          </div>
+        </div>
+
         <div style="margin-bottom:14px; display:none;" id="progressWrap">
           <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px;">
             <span>Progress bulk upload...</span><span class="mono" id="progressLabel">0/0</span>
@@ -414,6 +427,7 @@
         </div>
         <div id="plRowsSummary" style="margin-top:8px;font-size:12px;color:var(--muted);"></div>
         <div id="plRowsTable" style="margin-top:8px;display:none;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;"></div>
+        <button class="btn-ghost" id="plExportBtn" style="display:none;width:100%;margin-top:8px;">&#8595; Unduh ID, Link &amp; Channel Playlist</button>
       </div>
 
       <div class="field" style="margin-top:14px;">
@@ -713,6 +727,13 @@
     fixThumbsBtn: document.getElementById("fixThumbsBtn"),
     restoreBanner: document.getElementById("restoreBanner"),
 
+    exportWrap: document.getElementById("exportWrap"),
+    exportCountLabel: document.getElementById("exportCountLabel"),
+    exportIdsBtn: document.getElementById("exportIdsBtn"),
+    exportAllBtn: document.getElementById("exportAllBtn"),
+    copyIdsBtn: document.getElementById("copyIdsBtn"),
+    copyLinksBtn: document.getElementById("copyLinksBtn"),
+    plExportBtn: document.getElementById("plExportBtn"),
     downloadTemplateBtn: document.getElementById("downloadTemplateBtn"),
     tplPreview: document.getElementById("tplPreview"),
 
@@ -1404,6 +1425,73 @@
       return r.mode === "live" && r.status === "sukses" && r.videoId && r.message && /thumbnail/i.test(r.message);
     });
   }
+  // ================= EKSPOR ID / LINK / CHANNEL =================
+  function watchUrl(id){ return "https://www.youtube.com/watch?v=" + encodeURIComponent(id); }
+  function studioUrl(id, mode){ return "https://studio.youtube.com/video/" + encodeURIComponent(id) + (mode === "live" ? "/livestreaming" : "/edit"); }
+  function playlistUrl(id){ return "https://www.youtube.com/playlist?list=" + encodeURIComponent(id); }
+  // Sel CSV: quote kalau perlu, dan netralkan awalan = + - @ supaya tidak dibaca Excel sebagai rumus.
+  function csvCell(v){
+    var s = String(v == null ? "" : v);
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  function saveCsv(filename, header, rowsArr){
+    var lines = [header.join(",")].concat(rowsArr.map(function(r){ return r.map(csvCell).join(","); }));
+    var blob = new Blob(["\uFEFF" + lines.join("\r\n") + "\r\n"], { type: "text/csv;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ document.body.removeChild(a); URL.revokeObjectURL(url); }, 800);
+  }
+  function todayStamp(){ return new Date().toISOString().slice(0, 10); }
+  function doneRows(onlyLive){
+    return events.filter(function(r){
+      return r.status === "sukses" && r.videoId && (!onlyLive || r.mode === "live");
+    });
+  }
+  function eventExportRow(r){
+    var utc = rowUtcIso(r) || "";
+    return [
+      r.videoId, r.title,
+      (r.date || "") + " " + (r.time || "") + " " + timeLabel(r), utc,
+      r.privacy, r.mode === "live" ? "live" : "video",
+      watchUrl(r.videoId), studioUrl(r.videoId, r.mode),
+      r.channelTitle || r.uploadedVia || "", r.channelId || "", r.createdAt || ""
+    ];
+  }
+  var EXPORT_HEADER = ["videoId", "title", "jadwal_lokal", "jadwal_utc", "privacy", "jenis", "link_watch", "link_studio", "channel", "channel_id", "dibuat_pada"];
+
+  function exportEvents(onlyLive){
+    var list = doneRows(onlyLive);
+    if (!list.length){ showToast(onlyLive ? "Belum ada event live yang sukses dibuat" : "Belum ada hasil sukses"); return; }
+    var name = (onlyLive ? "live-chat-ids-" : "hasil-upload-") + todayStamp() + ".csv";
+    saveCsv(name, EXPORT_HEADER, list.map(eventExportRow));
+    log("Diunduh " + name + " (" + list.length + " baris). " + (onlyLive ? "Pilih file ini di Tool 2, Langkah 1." : ""), "success");
+    showToast(list.length + " baris diunduh");
+  }
+  function copyText(text, okMsg){
+    function fallback(){
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand("copy"); } catch (e){}
+      document.body.removeChild(ta);
+      showToast(ok ? okMsg : "Gagal menyalin, pakai tombol Unduh");
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){ showToast(okMsg); }, fallback);
+    } else fallback();
+  }
+  function updateExportBtns(){
+    if (!el.exportWrap) return;
+    var all = doneRows(false), live = doneRows(true);
+    el.exportWrap.style.display = all.length ? "block" : "none";
+    el.exportCountLabel.textContent = "(" + live.length + " live, " + (all.length - live.length) + " video)";
+    el.exportIdsBtn.disabled = !live.length;
+    el.copyIdsBtn.disabled = !live.length;
+  }
+
   function updateFixThumbsBtn(){
     var n = rowsNeedingThumbFix().length;
     el.fixThumbsBtn.style.display = n ? "block" : "none";
@@ -1413,6 +1501,7 @@
   function renderEventsTable(){
     saveState();
     updateFixThumbsBtn();
+    updateExportBtns();
     if (events.length === 0){
       el.emptyState.style.display = "block";
       el.eventsArea.style.display = "none";
@@ -1438,7 +1527,7 @@
       if (r.status === "ready") statusHtml = '<span class="status-tag ready">Ready</span>';
       else if (r.status === "loading") statusHtml = '<span class="status-tag loading">Proses</span>';
       else if (r.status === "skip") statusHtml = '<span class="status-tag skip">Skip (lewat)</span>';
-      else if (r.status === "sukses") statusHtml = '<div><span class="status-tag sukses">Sukses</span>' + (r.videoId ? '<div class="mono" style="font-size:10px;color:var(--muted);margin-top:3px;">' + escapeHtml(r.videoId) + '</div>' : '') + (r.mode === "live" ? '<div style="font-size:10px;color:#93c5fd;margin-top:2px;">jadwal live' + (r.message && /tapi:/.test(r.message) ? ' (<span style="color:#fbbf24;">' + escapeHtml(r.message.replace("Jadwal live dibuat, tapi: ", "")) + '</span>)' : '') + '</div>' : '') + (r.uploadedVia ? '<div style="font-size:10px;color:var(--muted);margin-top:2px;">via ' + escapeHtml(r.uploadedVia) + '</div>' : '') + '</div>';
+      else if (r.status === "sukses") statusHtml = '<div><span class="status-tag sukses">Sukses</span>' + (r.videoId ? '<div class="mono" style="font-size:10px;color:var(--muted);margin-top:3px;"><a href="' + watchUrl(r.videoId) + '" target="_blank" rel="noopener" style="color:#93c5fd;">' + escapeHtml(r.videoId) + '</a></div>' : '') + (r.mode === "live" ? '<div style="font-size:10px;color:#93c5fd;margin-top:2px;">jadwal live' + (r.message && /tapi:/.test(r.message) ? ' (<span style="color:#fbbf24;">' + escapeHtml(r.message.replace("Jadwal live dibuat, tapi: ", "")) + '</span>)' : '') + '</div>' : '') + (r.uploadedVia ? '<div style="font-size:10px;color:var(--muted);margin-top:2px;">via ' + escapeHtml(r.uploadedVia) + '</div>' : '') + '</div>';
       else if (r.status === "gagal") statusHtml = '<div><span class="status-tag gagal">Gagal</span><div style="font-size:10px;color:#fca5a5;max-width:180px;margin-top:3px;">' + escapeHtml(r.message || "") + '</div></div>';
 
       rowsHtml += '<tr>' +
@@ -1634,7 +1723,7 @@
     // Dipakai buat memulihkan DAFTAR akun (email/channel) setelah refresh, supaya user tinggal "Login ulang"
     // per akun (lewat login_hint) alih-alih "Tambah Akun" dari nol dan harus ingat2 100 email satu-satu.
     try {
-      var lite = accounts.map(function(a){ return { email: a.email, name: a.name, channelTitle: a.channelTitle, clientId: a.clientId, usedCount: a.usedCount || 0, usedDay: a.usedDay || pacificDateKey() }; });
+      var lite = accounts.map(function(a){ return { email: a.email, name: a.name, channelTitle: a.channelTitle, channelId: a.channelId || null, clientId: a.clientId, usedCount: a.usedCount || 0, usedDay: a.usedDay || pacificDateKey() }; });
       localStorage.setItem("yt_csv_accounts_meta", JSON.stringify(lite));
     } catch (e){}
     persistSessionTokens();
@@ -1689,7 +1778,7 @@
                 loginAt: Date.now(),
                 tokenLifeMs: tokenLifeFromResponse(resp),
                 email: null, name: null, picture: null,
-                channelTitle: null,
+                channelTitle: null, channelId: null,
                 usedCount: 0
               };
               accounts.push(newAcc);
@@ -1757,9 +1846,10 @@
       .then(function(d){
         if (d.items && d.items.length){
           acc.channelTitle = d.items[0].snippet.title;
+          acc.channelId = d.items[0].id;
           log("Channel terdeteksi untuk akun ini: " + acc.channelTitle, "success");
         } else {
-          acc.channelTitle = null;
+          acc.channelTitle = null; acc.channelId = null;
           log("Channel tidak ditemukan untuk salah satu akun. Pastikan akun itu punya channel YouTube.", "error");
         }
         persistAccounts();
@@ -2617,15 +2707,18 @@
       el.plRowsTable.innerHTML = "";
       el.plRowsSummary.textContent = "";
       el.plClearRowsBtn.style.display = "none";
+      if (el.plExportBtn) el.plExportBtn.style.display = "none";
       return;
     }
     el.plClearRowsBtn.style.display = "inline-block";
     var okCount = playlistRows.filter(function(r){ return r.status === "sukses"; }).length;
+    if (el.plExportBtn) el.plExportBtn.style.display = playlistRows.some(function(r){ return r.playlistId; }) ? "block" : "none";
     el.plRowsSummary.textContent = playlistRows.length + " playlist siap dibuat" + (okCount ? " (" + okCount + " sudah sukses)" : "");
     el.plRowsTable.style.display = "flex";
     el.plRowsTable.innerHTML = playlistRows.map(function(r){
       return '<div style="display:flex;justify-content:space-between;gap:10px;padding:8px;border:1px solid var(--border,#333);border-radius:8px;font-size:12px;">' +
         '<div style="min-width:0;"><div style="font-weight:500;">' + escapeHtml(r.title) + '</div>' +
+        (r.playlistId ? '<div class="mono" style="font-size:10px;margin-top:2px;"><a href="' + playlistUrl(r.playlistId) + '" target="_blank" rel="noopener" style="color:#93c5fd;">' + escapeHtml(r.playlistId) + '</a></div>' : '') +
         '<div style="color:var(--muted);">' + escapeHtml(r.privacy) + (r.message ? ' &bull; ' + escapeHtml(r.message) : '') + '</div></div>' +
         '<div style="flex-shrink:0;">' + playlistStatusLabel(r) + '</div>' +
         '</div>';
@@ -2891,6 +2984,7 @@
           }
           addClientQuotaUsage(acc.clientId, "live", COST.live.insert);
           row.playlistId = playlistId; okPlaylists++;
+          row.channelTitle = acc.channelTitle || acc.email || ""; row.channelId = acc.channelId || ""; row.createdAt = new Date().toISOString();
           plLog("✓ Playlist \"" + row.title + "\" dibuat: " + playlistId, "success");
           var vi = 0;
           function nextVideo(){
@@ -3166,6 +3260,9 @@
             row.videoId = res.videoId;
             row.message = appMode === "live" ? (res.warnings && res.warnings.length ? "Jadwal live dibuat, tapi: " + res.warnings.join("; ") : "Jadwal live dibuat") : "Sukses diupload";
             row.uploadedVia = acc.channelTitle || acc.email;
+            row.channelTitle = acc.channelTitle || null;
+            row.channelId = acc.channelId || null;
+            row.createdAt = new Date().toISOString();
             row.mode = appMode;
             acc.usedCount++;
             acc.usedDay = pacificDateKey();
@@ -3271,7 +3368,28 @@
     return null;
   }
 
+  function exportPlaylists(){
+    var list = playlistRows.filter(function(r){ return r.playlistId; });
+    if (!list.length){ showToast("Belum ada playlist yang berhasil dibuat"); return; }
+    var name = "playlist-ids-" + todayStamp() + ".csv";
+    saveCsv(name, ["playlistId", "title", "privacy", "link", "channel", "channel_id", "dibuat_pada"],
+      list.map(function(r){ return [r.playlistId, r.title, r.privacy, playlistUrl(r.playlistId), r.channelTitle || "", r.channelId || "", r.createdAt || ""]; }));
+    plLog("Diunduh " + name + " (" + list.length + " playlist).", "success");
+    showToast(list.length + " playlist diunduh");
+  }
+
   // ================= EVENT LISTENERS =================
+  el.exportIdsBtn.addEventListener("click", function(){ exportEvents(true); });
+  el.exportAllBtn.addEventListener("click", function(){ exportEvents(false); });
+  el.copyIdsBtn.addEventListener("click", function(){
+    var l = doneRows(true); if (!l.length) return;
+    copyText(l.map(function(r){ return r.videoId; }).join("\n"), l.length + " ID disalin (tempel di Tool 2)");
+  });
+  el.copyLinksBtn.addEventListener("click", function(){
+    var l = doneRows(false); if (!l.length) return;
+    copyText(l.map(function(r){ return watchUrl(r.videoId); }).join("\n"), l.length + " link disalin");
+  });
+  el.plExportBtn.addEventListener("click", exportPlaylists);
   el.saveClientIdBtn.addEventListener("click", saveClientId);
   el.addAccountBtn.addEventListener("click", doAddAccount);
   el.limitPerAccountInput.addEventListener("change", function(){
@@ -3392,6 +3510,7 @@
         name: a.name || null,
         picture: null,
         channelTitle: a.channelTitle || null,
+        channelId: a.channelId || null,
         // usedCount hanya berlaku di HARI (Pasifik) yang sama: kuota Google sudah reset, jadi hitungan hari lain dibuang.
         usedCount: (a.usedDay === todayKey ? (a.usedCount || 0) : 0),
         usedDay: todayKey
