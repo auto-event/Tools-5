@@ -275,15 +275,28 @@
     </div>
   </section>
 
-  <!-- SECTION 3: GAMBAR VIDEO 5 DETIK -->
+  <!-- SECTION 3: GAMBAR VIDEO -->
   <section>
     <div class="sec-head">
-      <div class="sec-head-left"><div class="num-badge">3</div><h2>Gambar Video (5 detik)</h2></div>
+      <div class="sec-head-left"><div class="num-badge">3</div><h2>Gambar Video (<span id="videoSecondsLabel">5</span> detik)</h2></div>
       <span class="tag-pill" id="imgModePill">Mode: desain otomatis</span>
     </div>
     <div class="sec-body">
+      <div class="field" style="margin-bottom:14px;" id="videoDurationWrap">
+        <label>Durasi Video yang Diupload</label>
+        <select id="videoDurationSelect" style="width:100%;">
+          <option value="1">1 detik (tercepat, upload paling ringan)</option>
+          <option value="5" selected>5 detik (default)</option>
+          <option value="25">25 detik</option>
+        </select>
+        <div class="small" style="color:var(--muted);margin-top:6px;">
+          Berlaku untuk Mode Video (videos.insert). Semakin pendek durasinya, semakin cepat proses render &amp; upload tiap event,
+          tapi file videonya juga makin kecil. Tidak berlaku untuk Mode Jadwal Live (yang dipakai di situ cuma gambar thumbnail, bukan video).
+        </div>
+      </div>
+
       <div class="note-box" style="margin-bottom:14px;">
-        <b>Mode Video:</b> tiap event di-render jadi <b>video WebM 5 detik</b> dari gambar (1280&times;720); thumbnail otomatis diambil YouTube dari frame video.<br>
+        <b>Mode Video:</b> tiap event di-render jadi <b>video WebM <span class="videoSecondsText">5</span> detik</b> dari gambar (1280&times;720); thumbnail otomatis diambil YouTube dari frame video.<br>
         <b>Mode Jadwal Live:</b> gambar yang dipilih dipakai sebagai <b>thumbnail JPEG</b> (dijaga &lt; 2 MB) lewat <code class="inline">thumbnails.set</code>; tidak ada video yang dirender.<br>
         &bull; <b>Tanpa upload gambar:</b> desain otomatis dari judul + jadwal tiap event (beda-beda per event).<br>
         &bull; <b>Upload 1 gambar:</b> gambar itu dipakai sama untuk semua event.<br>
@@ -636,7 +649,18 @@
   // Default "Limit/akun" mengikuti kuota harian per Client ID sesuai mode: 66 (live) / 100 (video).
   // saveState/restoreState di bawah bisa menimpa ini kalau ada sesi tersimpan (dan mematikan limitAutoManaged).
   limitPerAccount = eventsPerDayPerClient(appMode);
-  var VIDEO_SECONDS = 5;
+  var VIDEO_SECONDS = (function(){
+    try {
+      var v = parseInt(localStorage.getItem("yt_csv_video_seconds"), 10);
+      return [1, 5, 25].indexOf(v) !== -1 ? v : 5;
+    } catch (e){ return 5; }
+  })();
+  function setVideoSeconds(n){
+    VIDEO_SECONDS = n;
+    try { localStorage.setItem("yt_csv_video_seconds", String(n)); } catch (e){}
+    if (el.videoSecondsLabel) el.videoSecondsLabel.textContent = n;
+    document.querySelectorAll(".videoSecondsText").forEach(function(elx){ elx.textContent = n; });
+  }
   var VIDEO_W = 1280, VIDEO_H = 720;
   // Galeri gambar upload user. Array kosong = mode desain otomatis.
   // Tiap item: { img: HTMLImageElement, url: object URL, name: nama file }
@@ -707,6 +731,9 @@
     overlayWrap: document.getElementById("overlayWrap"),
     overlayTitleChk: document.getElementById("overlayTitleChk"),
     imgModePill: document.getElementById("imgModePill"),
+    videoDurationSelect: document.getElementById("videoDurationSelect"),
+    videoDurationWrap: document.getElementById("videoDurationWrap"),
+    videoSecondsLabel: document.getElementById("videoSecondsLabel"),
     assetPreview: document.getElementById("assetPreview"),
 
     eventCountPill: document.getElementById("eventCountPill"),
@@ -797,10 +824,11 @@
         'Biaya per event <b>150 unit</b> (jadwal 50 + thumbnail 50 + tag 50) &asymp; <b>' + eventsPerDayPerClient("live") + ' event/hari per Client ID</b>. ' +
         '<b>Syarat:</b> live streaming harus <b>aktif</b> di channel (verifikasi telepon, aktivasi pertama bisa sampai 24 jam) dan channel harus terverifikasi untuk thumbnail. ' +
         'Jadwal harus di masa depan dan &ldquo;cukup dekat&rdquo; (batas Google tidak dipublikasikan, kalau ditolak coba tanggal lebih dekat). Render video tidak dipakai.'
-      : '<b>Mode Upload Video.</b> Tiap event di-render jadi video WebM 5 detik lalu diupload. Kuota: <b>' + eventsPerDayPerClient("video") + ' upload/hari per Client ID</b> (bucket sendiri, 1 unit/upload). ' +
+      : '<b>Mode Upload Video.</b> Tiap event di-render jadi video WebM ' + VIDEO_SECONDS + ' detik lalu diupload. Kuota: <b>' + eventsPerDayPerClient("video") + ' upload/hari per Client ID</b> (bucket sendiri, 1 unit/upload). ' +
         'Tidak butuh live streaming aktif dan tidak butuh thumbnail terpisah.';
     var pill = document.getElementById("imgModePill");
     if (pill) pill.textContent = (userImages.length ? "Mode: gambar upload (" + userImages.length + ")" : "Mode: desain otomatis") + (live ? " (thumbnail)" : " (video)");
+    if (el.videoDurationWrap) el.videoDurationWrap.style.display = live ? "none" : "";
     updateUploadBtnState();
   }
   function setMode(m){
@@ -2203,7 +2231,7 @@
     } catch (e){ cb("Gagal membuat thumbnail: " + (e.message || e)); }
   }
 
-  // Render satu video WebM 5 detik dari canvas. cb(err, blob).
+  // Render satu video WebM (durasi sesuai VIDEO_SECONDS, bisa 1/5/25 detik) dari canvas. cb(err, blob).
   function renderVideoForRow(row, cb){
     if (!isRecorderSupported()){
       cb("Browser ini tidak mendukung MediaRecorder/captureStream (coba Chrome/Edge/Firefox desktop atau Android).");
@@ -3217,7 +3245,7 @@
       renderEventsTable();
       log("[" + (idx+1) + "/" + targets.length + "] Akun: " + (acc.channelTitle || acc.email || "akun " + (activeAccountIndex+1)) + " -> Render & upload: " + row.title + " @ " + row.date + " " + row.time + " " + timeLabel(row), "info");
 
-      // Cek tanggal lewat DULU sebelum buang 5 detik untuk render video.
+      // Cek tanggal lewat DULU sebelum buang waktu (VIDEO_SECONDS detik) untuk render video.
       var pubUtc = rowUtcIso(row);
       if (!pubUtc || isPastUtc(pubUtc)){
         row.status = pubUtc ? "skip" : "gagal";
@@ -3228,7 +3256,7 @@
         return;
       }
 
-      // Satu langkah "hasilkan aset lalu kirim". Mode video: render WebM 5 detik -> videos.insert.
+      // Satu langkah "hasilkan aset lalu kirim". Mode video: render WebM (VIDEO_SECONDS detik) -> videos.insert.
       // Mode live: render JPEG thumbnail -> liveBroadcasts.insert (+ thumbnail + tag). Callback hasil SAMA untuk keduanya.
       var makeAsset = appMode === "live" ? function(row, cb){ cb(null, null); } : renderVideoForRow;
       makeAsset(row, function(renderErr, blob){
@@ -3605,6 +3633,18 @@
     plLogBuffer = [];
   });
   el.downloadLogBtn2.addEventListener("click", plDownloadLog);
+
+  if (el.videoDurationSelect){
+    el.videoDurationSelect.value = String(VIDEO_SECONDS);
+    el.videoDurationSelect.addEventListener("change", function(){
+      var n = parseInt(el.videoDurationSelect.value, 10);
+      if ([1, 5, 25].indexOf(n) === -1) n = 5;
+      setVideoSeconds(n);
+      applyModeUi();
+      log("Durasi video upload diubah ke " + n + " detik.", "info");
+    });
+  }
+  setVideoSeconds(VIDEO_SECONDS);   // sinkronkan label section 3 & teks mode note ke nilai awal (termasuk yang dipulihkan dari localStorage)
 
   applyModeUi();
   renderClientIds();
