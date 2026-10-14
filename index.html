@@ -275,28 +275,15 @@
     </div>
   </section>
 
-  <!-- SECTION 3: GAMBAR VIDEO -->
+  <!-- SECTION 3: GAMBAR VIDEO 5 DETIK -->
   <section>
     <div class="sec-head">
-      <div class="sec-head-left"><div class="num-badge">3</div><h2>Gambar Video (<span id="videoSecondsLabel">5</span> detik)</h2></div>
+      <div class="sec-head-left"><div class="num-badge">3</div><h2>Gambar Video (5 detik)</h2></div>
       <span class="tag-pill" id="imgModePill">Mode: desain otomatis</span>
     </div>
     <div class="sec-body">
-      <div class="field" style="margin-bottom:14px;" id="videoDurationWrap">
-        <label>Durasi Video yang Diupload</label>
-        <select id="videoDurationSelect" style="width:100%;">
-          <option value="1">1 detik (tercepat, upload paling ringan)</option>
-          <option value="5" selected>5 detik (default)</option>
-          <option value="25">25 detik</option>
-        </select>
-        <div class="small" style="color:var(--muted);margin-top:6px;">
-          Berlaku untuk Mode Video (videos.insert). Semakin pendek durasinya, semakin cepat proses render &amp; upload tiap event,
-          tapi file videonya juga makin kecil. Tidak berlaku untuk Mode Jadwal Live (yang dipakai di situ cuma gambar thumbnail, bukan video).
-        </div>
-      </div>
-
       <div class="note-box" style="margin-bottom:14px;">
-        <b>Mode Video:</b> tiap event di-render jadi <b>video WebM <span class="videoSecondsText">5</span> detik</b> dari gambar (1280&times;720); thumbnail otomatis diambil YouTube dari frame video.<br>
+        <b>Mode Video:</b> tiap event di-render jadi <b>video WebM 5 detik</b> dari gambar (1280&times;720); thumbnail otomatis diambil YouTube dari frame video.<br>
         <b>Mode Jadwal Live:</b> gambar yang dipilih dipakai sebagai <b>thumbnail JPEG</b> (dijaga &lt; 2 MB) lewat <code class="inline">thumbnails.set</code>; tidak ada video yang dirender.<br>
         &bull; <b>Tanpa upload gambar:</b> desain otomatis dari judul + jadwal tiap event (beda-beda per event).<br>
         &bull; <b>Upload 1 gambar:</b> gambar itu dipakai sama untuk semua event.<br>
@@ -360,6 +347,12 @@
             <button class="btn-ghost" id="exportAllBtn" style="flex:1;min-width:170px;">&#8595; Unduh Semua Hasil</button>
             <button class="btn-ghost" id="copyIdsBtn" style="flex:1;min-width:110px;">Salin ID</button>
             <button class="btn-ghost" id="copyLinksBtn" style="flex:1;min-width:110px;">Salin Link</button>
+          </div>
+          <div style="margin-top:8px;">
+            <button class="btn-ghost" id="exportKeysBtn" style="width:100%;">&#128273; Unduh Stream Key (Channel, Event, Key)</button>
+            <div class="small" style="color:var(--muted);margin-top:6px;">
+              CSV terpisah, hanya berisi nama channel, nama event &amp; stream key. Stream key bersifat rahasia, jangan dibagikan sembarangan.
+            </div>
           </div>
         </div>
 
@@ -649,18 +642,7 @@
   // Default "Limit/akun" mengikuti kuota harian per Client ID sesuai mode: 66 (live) / 100 (video).
   // saveState/restoreState di bawah bisa menimpa ini kalau ada sesi tersimpan (dan mematikan limitAutoManaged).
   limitPerAccount = eventsPerDayPerClient(appMode);
-  var VIDEO_SECONDS = (function(){
-    try {
-      var v = parseInt(localStorage.getItem("yt_csv_video_seconds"), 10);
-      return [1, 5, 25].indexOf(v) !== -1 ? v : 5;
-    } catch (e){ return 5; }
-  })();
-  function setVideoSeconds(n){
-    VIDEO_SECONDS = n;
-    try { localStorage.setItem("yt_csv_video_seconds", String(n)); } catch (e){}
-    if (el.videoSecondsLabel) el.videoSecondsLabel.textContent = n;
-    document.querySelectorAll(".videoSecondsText").forEach(function(elx){ elx.textContent = n; });
-  }
+  var VIDEO_SECONDS = 5;
   var VIDEO_W = 1280, VIDEO_H = 720;
   // Galeri gambar upload user. Array kosong = mode desain otomatis.
   // Tiap item: { img: HTMLImageElement, url: object URL, name: nama file }
@@ -731,9 +713,6 @@
     overlayWrap: document.getElementById("overlayWrap"),
     overlayTitleChk: document.getElementById("overlayTitleChk"),
     imgModePill: document.getElementById("imgModePill"),
-    videoDurationSelect: document.getElementById("videoDurationSelect"),
-    videoDurationWrap: document.getElementById("videoDurationWrap"),
-    videoSecondsLabel: document.getElementById("videoSecondsLabel"),
     assetPreview: document.getElementById("assetPreview"),
 
     eventCountPill: document.getElementById("eventCountPill"),
@@ -760,6 +739,7 @@
     exportAllBtn: document.getElementById("exportAllBtn"),
     copyIdsBtn: document.getElementById("copyIdsBtn"),
     copyLinksBtn: document.getElementById("copyLinksBtn"),
+    exportKeysBtn: document.getElementById("exportKeysBtn"),
     plExportBtn: document.getElementById("plExportBtn"),
     downloadTemplateBtn: document.getElementById("downloadTemplateBtn"),
     tplPreview: document.getElementById("tplPreview"),
@@ -824,11 +804,10 @@
         'Biaya per event <b>150 unit</b> (jadwal 50 + thumbnail 50 + tag 50) &asymp; <b>' + eventsPerDayPerClient("live") + ' event/hari per Client ID</b>. ' +
         '<b>Syarat:</b> live streaming harus <b>aktif</b> di channel (verifikasi telepon, aktivasi pertama bisa sampai 24 jam) dan channel harus terverifikasi untuk thumbnail. ' +
         'Jadwal harus di masa depan dan &ldquo;cukup dekat&rdquo; (batas Google tidak dipublikasikan, kalau ditolak coba tanggal lebih dekat). Render video tidak dipakai.'
-      : '<b>Mode Upload Video.</b> Tiap event di-render jadi video WebM ' + VIDEO_SECONDS + ' detik lalu diupload. Kuota: <b>' + eventsPerDayPerClient("video") + ' upload/hari per Client ID</b> (bucket sendiri, 1 unit/upload). ' +
+      : '<b>Mode Upload Video.</b> Tiap event di-render jadi video WebM 5 detik lalu diupload. Kuota: <b>' + eventsPerDayPerClient("video") + ' upload/hari per Client ID</b> (bucket sendiri, 1 unit/upload). ' +
         'Tidak butuh live streaming aktif dan tidak butuh thumbnail terpisah.';
     var pill = document.getElementById("imgModePill");
     if (pill) pill.textContent = (userImages.length ? "Mode: gambar upload (" + userImages.length + ")" : "Mode: desain otomatis") + (live ? " (thumbnail)" : " (video)");
-    if (el.videoDurationWrap) el.videoDurationWrap.style.display = live ? "none" : "";
     updateUploadBtnState();
   }
   function setMode(m){
@@ -1498,6 +1477,130 @@
     log("Diunduh " + name + " (" + list.length + " baris). " + (onlyLive ? "Pilih file ini di Tool 2, Langkah 1." : ""), "success");
     showToast(list.length + " baris diunduh");
   }
+
+  // ================= EKSPOR STREAM KEY (channel, nama event, stream key) =================
+  // Alur per akun: liveBroadcasts.list (boundStreamId) -> liveStreams.list (cdn.ingestionInfo.streamName).
+  // Event yang belum terikat ke stream bisa diikat ke stream bawaan channel lewat liveBroadcasts.bind (50 unit/event).
+  var exportingKeys = false;
+  function ytGet(url, token){
+    return fetch(url, { headers: { "Authorization": "Bearer " + token } }).then(function(r){
+      return r.text().then(function(t){
+        if (!r.ok) throw new Error("(" + r.status + ") " + t.slice(0, 140));
+        return JSON.parse(t);
+      });
+    });
+  }
+  function chunkArr(arr, n){ var out = []; for (var i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n)); return out; }
+
+  async function exportStreamKeys(){
+    if (exportingKeys) return;
+    if (running){ showToast("Tunggu proses upload selesai dulu"); return; }
+    var list = doneRows(true);
+    if (!list.length){ showToast("Belum ada event live yang sukses dibuat"); return; }
+    exportingKeys = true; el.exportKeysBtn.disabled = true;
+    log("Mengambil stream key untuk " + list.length + " event live...", "info");
+
+    var result = [];          // [channel, event, stream_key, stream_url, catatan]
+    var wantBind = null;      // null = belum ditanya
+    try {
+      // kelompokkan event per akun (channel yang membuatnya)
+      var groups = [];
+      list.forEach(function(r){
+        var acc = accounts.find(function(a){
+          return !isTokenExpired(a) && ((a.channelTitle && a.channelTitle === r.uploadedVia) || (a.email && a.email === r.uploadedVia));
+        });
+        var key = acc ? acc.id : "noacc:" + (r.uploadedVia || "?");
+        var g = groups.find(function(x){ return x.key === key; });
+        if (!g){ g = { key: key, acc: acc, rows: [] }; groups.push(g); }
+        g.rows.push(r);
+      });
+
+      for (var gi = 0; gi < groups.length; gi++){
+        var g = groups[gi];
+        if (!g.acc){
+          g.rows.forEach(function(r){
+            result.push([r.channelTitle || r.uploadedVia || "", r.title, "", "", "akun belum login / token habis, login ulang lalu coba lagi"]);
+          });
+          log("⏭ Lewati " + g.rows.length + " event: akun \"" + (g.rows[0].uploadedVia || "?") + "\" belum login/tokennya habis.", "error");
+          continue;
+        }
+        var acc = g.acc;
+        var token = await ensureFreshToken(acc);
+        var chName = acc.channelTitle || acc.email || "";
+        var used = 0;
+
+        // 1) broadcast -> boundStreamId
+        var bound = {};   // videoId -> streamId
+        var chunks = chunkArr(g.rows, 50);
+        for (var ci = 0; ci < chunks.length; ci++){
+          var ids = chunks[ci].map(function(r){ return encodeURIComponent(r.videoId); }).join(",");
+          var d = await ytGet("https://www.googleapis.com/youtube/v3/liveBroadcasts?part=id,contentDetails&maxResults=50&id=" + ids, token);
+          used += 1;
+          (d.items || []).forEach(function(it){
+            if (it.contentDetails && it.contentDetails.boundStreamId) bound[it.id] = it.contentDetails.boundStreamId;
+          });
+        }
+
+        // 2) stream channel (semua stream milik channel ini, sekali ambil)
+        var streams = {}, firstStreamId = null;
+        var sd = await ytGet("https://www.googleapis.com/youtube/v3/liveStreams?part=id,snippet,cdn&mine=true&maxResults=50", token);
+        used += 1;
+        (sd.items || []).forEach(function(it){
+          streams[it.id] = it;
+          if (!firstStreamId) firstStreamId = it.id;
+        });
+
+        // 3) event yang belum terikat
+        var unbound = g.rows.filter(function(r){ return !bound[r.videoId]; });
+        if (unbound.length && firstStreamId){
+          if (wantBind === null){
+            wantBind = confirm("Ada event yang belum terikat ke stream key.\n\nIkat otomatis ke stream key bawaan channel supaya key-nya bisa diambil?\n(OK = ikat, biaya 50 unit kuota per event. Batal = biarkan kosong.)");
+          }
+          if (wantBind){
+            for (var ui = 0; ui < unbound.length; ui++){
+              var ur = unbound[ui];
+              try {
+                var br = await fetch("https://www.googleapis.com/youtube/v3/liveBroadcasts/bind?part=id,contentDetails&id=" + encodeURIComponent(ur.videoId) + "&streamId=" + encodeURIComponent(firstStreamId), {
+                  method: "POST", headers: { "Authorization": "Bearer " + token }
+                });
+                used += 50;
+                if (br.ok){ bound[ur.videoId] = firstStreamId; }
+                else { var bt = await br.text(); log("✗ Gagal ikat stream untuk \"" + ur.title + "\": (" + br.status + ") " + bt.slice(0, 120), "error"); }
+              } catch (e){ log("✗ Gagal ikat stream untuk \"" + ur.title + "\": " + (e.message || e), "error"); }
+              await new Promise(function(res){ setTimeout(res, 400); });
+            }
+          }
+        }
+
+        // 4) susun hasil
+        g.rows.forEach(function(r){
+          var sid = bound[r.videoId];
+          var st = sid ? streams[sid] : null;
+          var info = st && st.cdn && st.cdn.ingestionInfo;
+          if (info && info.streamName){
+            result.push([chName, r.title, info.streamName, info.ingestionAddress || "", ""]);
+          } else if (!sid){
+            result.push([chName, r.title, "", "", firstStreamId ? "belum terikat ke stream key" : "channel belum punya stream key"]);
+          } else {
+            result.push([chName, r.title, "", "", "stream terikat tapi key tidak terbaca"]);
+          }
+        });
+        addClientQuotaUsage(acc.clientId, "live", used);
+        log("✓ " + chName + ": " + g.rows.length + " event diproses (" + used + " unit kuota).", "success");
+      }
+
+      var got = result.filter(function(r){ return r[2]; }).length;
+      var name = "stream-keys-" + todayStamp() + ".csv";
+      saveCsv(name, ["channel", "event", "stream_key", "stream_url", "catatan"], result);
+      log("Diunduh " + name + ": " + got + " dari " + result.length + " event punya stream key. File ini rahasia, simpan dengan aman.", got ? "success" : "error");
+      showToast(got + "/" + result.length + " stream key diunduh");
+    } catch (e){
+      log("✗ Gagal ambil stream key: " + (e.message || e), "error");
+      showToast("Gagal ambil stream key, lihat log");
+    } finally {
+      exportingKeys = false; updateExportBtns(); renderClientIds();
+    }
+  }
   function copyText(text, okMsg){
     function fallback(){
       var ta = document.createElement("textarea");
@@ -1518,6 +1621,7 @@
     el.exportCountLabel.textContent = "(" + live.length + " live, " + (all.length - live.length) + " video)";
     el.exportIdsBtn.disabled = !live.length;
     el.copyIdsBtn.disabled = !live.length;
+    if (el.exportKeysBtn) el.exportKeysBtn.disabled = !live.length;
   }
 
   function updateFixThumbsBtn(){
@@ -2231,7 +2335,7 @@
     } catch (e){ cb("Gagal membuat thumbnail: " + (e.message || e)); }
   }
 
-  // Render satu video WebM (durasi sesuai VIDEO_SECONDS, bisa 1/5/25 detik) dari canvas. cb(err, blob).
+  // Render satu video WebM 5 detik dari canvas. cb(err, blob).
   function renderVideoForRow(row, cb){
     if (!isRecorderSupported()){
       cb("Browser ini tidak mendukung MediaRecorder/captureStream (coba Chrome/Edge/Firefox desktop atau Android).");
@@ -3245,7 +3349,7 @@
       renderEventsTable();
       log("[" + (idx+1) + "/" + targets.length + "] Akun: " + (acc.channelTitle || acc.email || "akun " + (activeAccountIndex+1)) + " -> Render & upload: " + row.title + " @ " + row.date + " " + row.time + " " + timeLabel(row), "info");
 
-      // Cek tanggal lewat DULU sebelum buang waktu (VIDEO_SECONDS detik) untuk render video.
+      // Cek tanggal lewat DULU sebelum buang 5 detik untuk render video.
       var pubUtc = rowUtcIso(row);
       if (!pubUtc || isPastUtc(pubUtc)){
         row.status = pubUtc ? "skip" : "gagal";
@@ -3256,7 +3360,7 @@
         return;
       }
 
-      // Satu langkah "hasilkan aset lalu kirim". Mode video: render WebM (VIDEO_SECONDS detik) -> videos.insert.
+      // Satu langkah "hasilkan aset lalu kirim". Mode video: render WebM 5 detik -> videos.insert.
       // Mode live: render JPEG thumbnail -> liveBroadcasts.insert (+ thumbnail + tag). Callback hasil SAMA untuk keduanya.
       var makeAsset = appMode === "live" ? function(row, cb){ cb(null, null); } : renderVideoForRow;
       makeAsset(row, function(renderErr, blob){
@@ -3409,6 +3513,7 @@
   // ================= EVENT LISTENERS =================
   el.exportIdsBtn.addEventListener("click", function(){ exportEvents(true); });
   el.exportAllBtn.addEventListener("click", function(){ exportEvents(false); });
+  el.exportKeysBtn.addEventListener("click", exportStreamKeys);
   el.copyIdsBtn.addEventListener("click", function(){
     var l = doneRows(true); if (!l.length) return;
     copyText(l.map(function(r){ return r.videoId; }).join("\n"), l.length + " ID disalin (tempel di Tool 2)");
@@ -3633,18 +3738,6 @@
     plLogBuffer = [];
   });
   el.downloadLogBtn2.addEventListener("click", plDownloadLog);
-
-  if (el.videoDurationSelect){
-    el.videoDurationSelect.value = String(VIDEO_SECONDS);
-    el.videoDurationSelect.addEventListener("change", function(){
-      var n = parseInt(el.videoDurationSelect.value, 10);
-      if ([1, 5, 25].indexOf(n) === -1) n = 5;
-      setVideoSeconds(n);
-      applyModeUi();
-      log("Durasi video upload diubah ke " + n + " detik.", "info");
-    });
-  }
-  setVideoSeconds(VIDEO_SECONDS);   // sinkronkan label section 3 & teks mode note ke nilai awal (termasuk yang dipulihkan dari localStorage)
 
   applyModeUi();
   renderClientIds();
