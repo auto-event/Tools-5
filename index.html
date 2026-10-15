@@ -350,6 +350,10 @@
           </div>
           <div style="margin-top:8px;">
             <button class="btn-ghost" id="exportKeysBtn" style="width:100%;">&#128273; Unduh Stream Key (Channel, Event, Key)</button>
+            <label class="small" style="display:flex;align-items:center;gap:6px;margin-top:6px;cursor:pointer;">
+              <input type="checkbox" id="autoBindKeys" checked>
+              Ikat otomatis event yang belum punya stream key (buat stream baru jika channel belum punya; 50 unit kuota per event)
+            </label>
             <div class="small" style="color:var(--muted);margin-top:6px;">
               CSV terpisah, hanya berisi nama channel, nama event &amp; stream key. Stream key bersifat rahasia, jangan dibagikan sembarangan.
             </div>
@@ -740,6 +744,7 @@
     copyIdsBtn: document.getElementById("copyIdsBtn"),
     copyLinksBtn: document.getElementById("copyLinksBtn"),
     exportKeysBtn: document.getElementById("exportKeysBtn"),
+    autoBindKeys: document.getElementById("autoBindKeys"),
     plExportBtn: document.getElementById("plExportBtn"),
     downloadTemplateBtn: document.getElementById("downloadTemplateBtn"),
     tplPreview: document.getElementById("tplPreview"),
@@ -1501,7 +1506,7 @@
     log("Mengambil stream key untuk " + list.length + " event live...", "info");
 
     var result = [];          // [channel, event, stream_key, stream_url, catatan]
-    var wantBind = null;      // null = belum ditanya
+    var wantBind = !el.autoBindKeys || el.autoBindKeys.checked;   // dari checkbox, bukan confirm() yang bisa diblokir browser
     try {
       // kelompokkan event per akun (channel yang membuatnya)
       var groups = [];
@@ -1552,10 +1557,30 @@
 
         // 3) event yang belum terikat
         var unbound = g.rows.filter(function(r){ return !bound[r.videoId]; });
+        if (unbound.length && !firstStreamId && wantBind){
+          // channel belum punya stream sama sekali -> buat satu stream (stream key) baru
+          try {
+            var cr = await fetch("https://www.googleapis.com/youtube/v3/liveStreams?part=snippet,cdn,contentDetails", {
+              method: "POST",
+              headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json; charset=UTF-8" },
+              body: JSON.stringify({
+                snippet: { title: "Stream key utama" },
+                cdn: { frameRate: "variable", ingestionType: "rtmp", resolution: "variable" },
+                contentDetails: { isReusable: true }
+              })
+            });
+            used += 50;
+            var ct = await cr.text();
+            if (cr.ok){
+              var ns = JSON.parse(ct);
+              streams[ns.id] = ns; firstStreamId = ns.id;
+              log("✓ " + chName + ": channel belum punya stream, stream key baru dibuat.", "success");
+            } else {
+              log("✗ " + chName + ": gagal buat stream baru (" + cr.status + ") " + ct.slice(0, 160), "error");
+            }
+          } catch (e){ log("✗ " + chName + ": gagal buat stream baru: " + (e.message || e), "error"); }
+        }
         if (unbound.length && firstStreamId){
-          if (wantBind === null){
-            wantBind = confirm("Ada event yang belum terikat ke stream key.\n\nIkat otomatis ke stream key bawaan channel supaya key-nya bisa diambil?\n(OK = ikat, biaya 50 unit kuota per event. Batal = biarkan kosong.)");
-          }
           if (wantBind){
             for (var ui = 0; ui < unbound.length; ui++){
               var ur = unbound[ui];
@@ -1580,7 +1605,7 @@
           if (info && info.streamName){
             result.push([chName, r.title, info.streamName, info.ingestionAddress || "", ""]);
           } else if (!sid){
-            result.push([chName, r.title, "", "", firstStreamId ? "belum terikat ke stream key" : "channel belum punya stream key"]);
+            result.push([chName, r.title, "", "", !wantBind ? "belum terikat (centang opsi ikat otomatis lalu coba lagi)" : (firstStreamId ? "gagal diikat ke stream key, lihat log" : "channel belum punya stream key & gagal dibuat, lihat log")]);
           } else {
             result.push([chName, r.title, "", "", "stream terikat tapi key tidak terbaca"]);
           }
@@ -1593,6 +1618,11 @@
       var name = "stream-keys-" + todayStamp() + ".csv";
       saveCsv(name, ["channel", "event", "stream_key", "stream_url", "catatan"], result);
       log("Diunduh " + name + ": " + got + " dari " + result.length + " event punya stream key. File ini rahasia, simpan dengan aman.", got ? "success" : "error");
+      if (got < result.length){
+        var reasons = {};
+        result.forEach(function(r){ if (!r[2]) reasons[r[4]] = (reasons[r[4]] || 0) + 1; });
+        Object.keys(reasons).forEach(function(k){ log("  • " + reasons[k] + " event kosong: " + k, "error"); });
+      }
       showToast(got + "/" + result.length + " stream key diunduh");
     } catch (e){
       log("✗ Gagal ambil stream key: " + (e.message || e), "error");
