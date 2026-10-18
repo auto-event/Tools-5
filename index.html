@@ -1552,7 +1552,7 @@
 
         // 3) pastikan SETIAP event punya stream key sendiri (1 event = 1 liveStream baru).
         //    Event yang belum terikat, atau yang berbagi stream dengan event lain di channel ini, dapat stream baru.
-        var usedStreams = {}, needOwn = [];
+        var usedStreams = {}, needOwn = [], createdFor = {};
         g.rows.forEach(function(r){
           var sid0 = bound[r.videoId];
           if (!sid0 || usedStreams[sid0]) needOwn.push(r);
@@ -1588,7 +1588,7 @@
                   method: "POST", headers: { "Authorization": "Bearer " + token }
                 });
                 used += 50;
-                if (br.ok){ bound[ur.videoId] = ns.id; }
+                if (br.ok){ bound[ur.videoId] = ns.id; createdFor[ur.videoId] = true; }
                 else { var bt = await br.text(); log("✗ Gagal ikat stream untuk \"" + ur.title + "\": (" + br.status + ") " + bt.slice(0, 120), "error"); }
               } catch (e){ log("✗ Gagal stream key \"" + ur.title + "\": " + (e.message || e), "error"); }
               await new Promise(function(res){ setTimeout(res, 500); });
@@ -1599,6 +1599,11 @@
         // 4) susun hasil
         g.rows.forEach(function(r){
           var sid = bound[r.videoId];
+          // Event yang seharusnya dapat key sendiri tapi pembuatannya gagal/dibatalkan: JANGAN tulis key bersama.
+          if (needOwn.indexOf(r) !== -1 && !createdFor[r.videoId]){
+            result.push([chName, r.title, "", "", wantBind ? "gagal membuat stream key sendiri, lihat Log Output (key bersama tidak ditulis)" : "pembuatan key baru dibatalkan, event ini masih berbagi key dengan event lain"]);
+            return;
+          }
           var st = sid ? streams[sid] : null;
           var info = st && st.cdn && st.cdn.ingestionInfo;
           if (info && info.streamName){
