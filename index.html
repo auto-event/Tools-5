@@ -2546,7 +2546,7 @@
         scheduledStartTime: startUtc
       },
       status: { privacyStatus: row.privacy, selfDeclaredMadeForKids: false },
-      contentDetails: { enableAutoStart: false, enableAutoStop: false }
+      contentDetails: { enableAutoStart: true, enableAutoStop: false }
     };
     var tags = row.tags ? row.tags.split(",").map(function(t){ return t.trim(); }).filter(Boolean) : [];
     var costUsed = COST.live.insert;
